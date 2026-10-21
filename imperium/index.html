@@ -132,6 +132,9 @@ h1 span{display:block;color:var(--gilt)}
 .tag.egg{cursor:pointer;user-select:none;border-color:var(--gilt-deep);color:var(--bone)}
 .tag.egg:hover{background:rgba(207,167,82,.1)}
 .tag.egg s{color:var(--seal)}
+@keyframes eggpulse{0%,100%{box-shadow:0 0 0 0 rgba(207,167,82,0)}50%{box-shadow:0 0 12px 2px rgba(207,167,82,.6)}}
+.tag.egg.hint{animation:eggpulse 2.2s ease-in-out 1.2s 3}
+@media (prefers-reduced-motion:reduce){.tag.egg.hint{animation:none}}
 .tag.egg b{font-weight:600;color:var(--gilt)}
 .pop{display:block;margin:10px 0 0;padding:10px 14px;background:var(--seal-soft);border-left:2px solid var(--seal);font-size:15px;color:#f0c9c4}
 .extra{margin:14px 0 0;padding:10px 14px;border-left:2px solid var(--gilt);background:rgba(207,167,82,.07);font-size:15px}
@@ -463,7 +466,8 @@ function found(k){ var a=ls(EKEY); if(!Array.isArray(a)) a=[]; if(a.indexOf(k)<0
 function eggClick(el, k, text, mode){
   var done=false;
   el.classList.add("egg"); el.setAttribute("role","button"); el.tabIndex=0; el.title="Нажми";
-  var go=function(){ if(done) return; done=true; el.classList.remove("egg"); el.removeAttribute("role");
+  var seen=ls(EKEY); if(!Array.isArray(seen)||seen.indexOf(k)<0) el.classList.add("hint");
+  var go=function(){ if(done) return; done=true; el.classList.remove("egg"); el.classList.remove("hint"); el.removeAttribute("role");
     if(mode==="strike"){ var base=el.textContent; el.innerHTML=""; el.appendChild(mk("s",null,base)); el.appendChild(document.createTextNode(" ")); el.appendChild(mk("b",null,text)); }
     else if(mode==="append"){ el.appendChild(document.createTextNode(" ")); el.appendChild(mk("b",null,text)); }
     else { $("rPops").appendChild(mk("span","pop",text)); }
