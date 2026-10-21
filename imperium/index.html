@@ -634,16 +634,22 @@ function makeCard(img){
   x.save(); x.font='800 54px "Alegreya SC", Georgia, serif'; var sw=x.measureText("УТВЕРЖДЕНО").width+56;
   x.translate(W-90-sw/2,250); x.rotate(-0.12); x.strokeStyle="rgba(184,52,44,.92)"; x.lineWidth=7; x.beginPath(); if(x.roundRect) x.roundRect(-sw/2,-46,sw,92,12); else x.rect(-sw/2,-46,sw,92); x.stroke();
   x.fillStyle="rgba(184,52,44,.92)"; x.textBaseline="middle"; x.fillText("УТВЕРЖДЕНО",0,4); x.restore(); x.textBaseline="alphabetic";
-  x.fillStyle="#a2967f"; x.font='500 30px "JetBrains Mono", monospace'; x.fillText(p.dep.toUpperCase(),W/2,800);
-  var fs=104; x.font='800 '+fs+'px "Alegreya SC", Georgia, serif'; x.fillStyle="#ebe1cc";
+  var fs=104; x.font='800 '+fs+'px "Alegreya SC", Georgia, serif';
   var lines=wrapLines(x,p.n,W-160); while(lines.length>2&&fs>60){ fs-=6; x.font='800 '+fs+'px "Alegreya SC", Georgia, serif'; lines=wrapLines(x,p.n,W-160); }
-  lines.forEach(function(l,i){ x.fillText(l,W/2,900+i*(fs*1.02)); });
   var y=900+(lines.length-1)*fs*1.02+70;
+  x.font='800 46px "Alegreya SC", Georgia, serif';
+  var ql=wrapLines(x,"«"+p.m+"»",W-220).slice(0,2);
+  var shift=Math.max(0,(y+160+(ql.length-1)*56)-(H-170));
+  x.save(); x.translate(0,-shift);
+  x.fillStyle="#a2967f"; x.font='500 30px "JetBrains Mono", monospace'; x.fillText(p.dep.toUpperCase(),W/2,800);
+  x.font='800 '+fs+'px "Alegreya SC", Georgia, serif'; x.fillStyle="#ebe1cc";
+  lines.forEach(function(l,i){ x.fillText(l,W/2,900+i*(fs*1.02)); });
   x.fillStyle="#cfa752"; x.font='italic 40px "PT Serif", Georgia, serif'; x.fillText(p.ep,W/2,y);
   x.font='500 40px "JetBrains Mono", monospace'; x.fillText(sec?"СЕКРЕТНЫЙ РЕЗУЛЬТАТ":"СОВПАДЕНИЕ "+top.pct+"%",W/2,y+70);
   x.fillStyle="#ebe1cc"; x.font='800 46px "Alegreya SC", Georgia, serif';
-  wrapLines(x,"«"+p.m+"»",W-220).slice(0,2).forEach(function(l,i){ x.fillText(l,W/2,y+160+i*56); });
-  x.fillStyle="#b8342c"; x.font='500 30px "JetBrains Mono", monospace'; x.fillText("А кем был бы ты?",W/2,H-92);
+  ql.forEach(function(l,i){ x.fillText(l,W/2,y+160+i*56); });
+  x.restore();
+  x.fillStyle="#b8342c"; x.font='500 30px "JetBrains Mono", monospace'; x.fillText("А какая роль у тебя?",W/2,H-100);
   return c.toDataURL("image/png");
 }
 function wrapLines(x,text,maxW){ var words=text.split(" "),line="",out=[]; words.forEach(function(w){ var t=line?line+" "+w:w; if(x.measureText(t).width>maxW&&line){ out.push(line); line=w; } else line=t; }); out.push(line); return out; }
@@ -664,7 +670,7 @@ $("cardBtn").addEventListener("click",function(){ track("card");
 function shareText(){
   var res=state.res, top=res.ranking[0], sec=res.secret, p=sec?Q.SECRET[sec]:top.r;
   var s=sec?"Администратум выдал мне секретный результат: "+p.n+".":"Администратум распределил меня: "+p.n+" ("+p.dep+"), совпадение "+top.pct+"%. Самая неподходящая должность — "+res.ranking[res.ranking.length-1].r.n+".";
-  s+=" А кем был бы ты? «Твоя роль в Империуме».";
+  s+=" А какая роль у тебя? «Твоя роль в Империуме».";
   if(/^https?:/.test(location.href)) s+=" "+resultLink();
   return s;
 }
