@@ -572,7 +572,7 @@ var SECRET = {
 var CAUGHT = "Обнаружен агент Механикус. Какой магос тебя послал?! Задание провалено: тебя схватили.";
 
 /* Калибровка частоты результатов (подбирается симуляцией). */
-var BIAS = {"adept":-0.075,"guard":0.048,"commissar":0.018,"techpriest":0.009,"inquisitor":-0.014,"sororitas":0.105,"preacher":0.03,"trader":-0.028,"navigator":0.048,"astropath":0.043,"arbitrator":-0.043,"assassin":-0.015,"governor":-0.03,"hospitaller":-0.043,"underhive":-0.002,"navy":-0.08,"psyker":0.05,"genecult":-0.014,"ogryn":-0.013,"ratling":-0.03,"silence":0.022,"knight":0.037,"agri":0,"chronicler":0};
+var BIAS = {"adept":-0.1,"guard":0.048,"commissar":0.018,"techpriest":0.009,"inquisitor":-0.014,"sororitas":0.12,"preacher":0.06,"trader":0.01,"navigator":0.048,"astropath":0.043,"arbitrator":-0.043,"assassin":-0.035,"governor":-0.03,"hospitaller":-0.043,"underhive":-0.002,"navy":-0.095,"psyker":0.05,"genecult":-0.014,"ogryn":0.005,"ratling":-0.03,"silence":0.022,"knight":0.037,"agri":-0.02,"chronicler":0.025};
 
 /* Пороги секретов */
 var FAST = {limit:2.0, chance:0.2, servitor:0.6}; /* limit — секунд на вопрос; внутри шанса servitor — доля Сервитора, остальное Скитарий */
