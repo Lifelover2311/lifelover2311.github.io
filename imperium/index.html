@@ -110,6 +110,7 @@ h1 span{display:block;color:var(--gilt)}
 /* Анализ */
 .scan{padding-block:70px}
 .scan h2{font-family:var(--f-display);font-size:34px;margin:0 0 6px}
+.scan .btn{margin-top:26px}
 .scan ol{list-style:none;padding:0;margin:24px 0 0;font-family:var(--f-mono);font-size:14px;color:var(--dust);display:grid;gap:7px}
 .scan li{opacity:0;animation:fade .3s ease forwards}
 .scan li.warn{color:#e0766d}
@@ -253,6 +254,7 @@ footer p{margin:0 0 6px}
   <div class="eyebrow">Администратум · отдел распределения</div>
   <h2>Анкета на рассмотрении</h2>
   <ol id="scanLog"></ol>
+  <button class="btn small" id="scanGo" type="button" hidden>Открыть досье</button>
 </section>
 
 <!-- РЕЗУЛЬТАТ -->
@@ -446,18 +448,25 @@ function finish(){
 function scan(){
   show("scan");
   var res=state.res, top=res.ranking[0].r;
+  var hold=false;
   var L=["Анкета принята. Номер присвоен.","Проверка на ересь… чисто. Пока.","Сверка с потребностями Империума…"];
-  if(Math.random()<1/15){ L.splice(1,0,"Ваше досье утеряно. Найдено. Это чужое. Найдено ваше."); found("lost"); }
-  if(Math.random()<1/10){ L.push("Заявка в Адептус Астартес отклонена. Вам больше 14 лет."); found("astartes"); }
-  if(loadHist().length>=2){ L.push("Многократное прохождение теста — признак ереси. Шучу. Или нет."); found("repeat"); }
-  if(!res.secret&&top.id==="assassin"){ L.push("Цель обнаружена. Цель потеряна. Цель стоит у вас за спиной."); found("assassin"); }
-  if(!res.secret&&top.id==="genecult"){ L.push("Родственник передаёт привет и машет всеми тремя руками."); found("genecult"); }
-  if(res.secret==="servitor"||res.secret==="skitarius") L.push("Внимание: скорость ответов превышает возможности плоти.");
-  if(res.secret==="custodian") L.push("Анкета изъята. Доступ только по распоряжению Трона.");
+  if(Math.random()<1/15){ L.splice(1,0,"Ваше досье утеряно. Найдено. Это чужое. Найдено ваше."); found("lost"); hold=true; }
+  if(Math.random()<1/10){ L.push("Заявка в Адептус Астартес отклонена. Вам больше 14 лет."); found("astartes"); hold=true; }
+  if(loadHist().length>=2){ L.push("Многократное прохождение теста — признак ереси. Шучу. Или нет."); found("repeat"); hold=true; }
+  if(!res.secret&&top.id==="assassin"){ L.push("Цель обнаружена. Цель потеряна. Цель стоит у вас за спиной."); found("assassin"); hold=true; }
+  if(!res.secret&&top.id==="genecult"){ L.push("Родственник передаёт привет и машет всеми тремя руками."); found("genecult"); hold=true; }
+  if(res.secret==="servitor"||res.secret==="skitarius") { L.push("Внимание: скорость ответов превышает возможности плоти."); hold=true; }
+  if(res.secret==="custodian") { L.push("Анкета изъята. Доступ только по распоряжению Трона."); hold=true; }
   L.push(res.secret==="custodian"?"Распределение не требуется.":"Должность определена.");
   var ol=$("scanLog"); ol.innerHTML="";
-  L.forEach(function(t,i){ var li=mk("li",/изъята|превышает|ересь… чисто/.test(t)?"warn":null,"> "+t); li.style.animationDelay=(reduce?0:i*0.4)+"s"; ol.appendChild(li); });
-  setTimeout(renderResult, reduce?400:L.length*400+800);
+  var GAP=reduce?0:0.95;
+  L.forEach(function(t,i){ var li=mk("li",/изъята|превышает|ересь… чисто/.test(t)?"warn":null,"> "+t); li.style.animationDelay=(i*GAP)+"s"; ol.appendChild(li); });
+  var lastAt=(L.length-1)*GAP*1000, wait=reduce?400:lastAt+(hold?7000:2200);
+  var go=$("scanGo"), timer=null, fired=false;
+  function open(){ if(fired) return; fired=true; clearTimeout(timer); go.hidden=true; go.onclick=null; renderResult(); }
+  go.hidden=true; go.onclick=open;
+  setTimeout(function(){ if(!fired) go.hidden=false; }, lastAt+700);
+  timer=setTimeout(open, wait);
 }
 
 /* ---------- Пасхалки (без счётчика; первое нахождение уходит в Метрику) ---------- */
