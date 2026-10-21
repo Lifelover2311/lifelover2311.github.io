@@ -575,7 +575,7 @@ var CAUGHT = "Обнаружен агент Механикус. Какой ма�
 var BIAS = {"adept":-0.036,"guard":0.048,"commissar":0.018,"techpriest":0.009,"inquisitor":-0.014,"sororitas":0.074,"preacher":0,"trader":-0.028,"navigator":0.048,"astropath":0.043,"arbitrator":-0.043,"assassin":-0.015,"governor":-0.03,"hospitaller":-0.043,"underhive":-0.002,"navy":-0.054,"psyker":0.023,"genecult":-0.014,"ogryn":-0.013,"ratling":-0.03,"silence":0.022,"knight":0.037,"agri":0,"chronicler":0};
 
 /* Пороги секретов */
-var FAST = {servitor:1.0, skitarius:2.0, chance:0.2}; /* секунд на вопрос */
+var FAST = {limit:2.0, chance:0.2, servitor:0.6}; /* limit — секунд на вопрос; внутри шанса servitor — доля Сервитора, остальное Скитарий */
 var CUSTODIAN = {B:0.36, T:0.36, L:-0.36, O:0.18};    /* минимальные значения шкал (L — в сторону долга) */
 
 /* ---------- ЛОГИКА ---------- */
@@ -635,7 +635,7 @@ function isCustodian(u){
 function evaluate(questions, picks, secPerQ, roll){
   var u=profile(questions, picks), rk=rank(u), secret=null;
   if(secPerQ!=null && roll!=null && roll<FAST.chance){
-    if(secPerQ<FAST.servitor) secret="servitor"; else if(secPerQ<FAST.skitarius) secret="skitarius";
+    if(secPerQ<FAST.limit) secret=(roll/FAST.chance<FAST.servitor)?"servitor":"skitarius";
   }
   if(!secret && isCustodian(u)) secret="custodian";
   return {user:u, ranking:rk, secret:secret};
