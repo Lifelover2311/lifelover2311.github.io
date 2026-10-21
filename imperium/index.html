@@ -717,7 +717,7 @@ window.addEventListener("hashchange",openFromHash);
       todo.push(n);
     }
     todo.forEach(function(n){
-      var f=document.createDocumentFragment();
+      var f=document.createElement("span"); f.className="scw";
       n.nodeValue.split("у").forEach(function(t,i){ if(i){ var sp=document.createElement("span"); sp.className="scu"; sp.textContent="У"; f.appendChild(sp); } if(t) f.appendChild(document.createTextNode(t)); });
       n.parentNode.replaceChild(f,n);
     });
