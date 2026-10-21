@@ -53,6 +53,7 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(46px,11vw,88px);
 h1 span{display:block;color:var(--gilt)}
 .lead{font-size:19px;max-width:34em;margin:0 0 22px}
 .lead i{font-family:var(--f-it);color:var(--dust)}
+.scu{font-size:.76em}
 .leadwrap{position:relative;max-width:34em;margin:0 0 22px}
 .leadwrap .lead{margin:0}
 .verdict{position:absolute;left:46%;top:52%;width:max-content;max-width:92%;text-align:center;transform:translate(-50%,-50%) rotate(-4deg);background:rgba(13,11,9,.92);border:3px solid var(--seal);border-radius:6px;color:var(--seal);font-family:var(--f-display);font-weight:800;font-size:clamp(16px,5vw,28px);line-height:1.15;letter-spacing:.05em;text-transform:uppercase;padding:6px 14px 8px;opacity:0;pointer-events:none}
@@ -643,14 +644,22 @@ function makeCard(img){
   x.save(); x.translate(0,-shift);
   x.fillStyle="#a2967f"; x.font='500 30px "JetBrains Mono", monospace'; x.fillText(p.dep.toUpperCase(),W/2,800);
   x.font='800 '+fs+'px "Alegreya SC", Georgia, serif'; x.fillStyle="#ebe1cc";
-  lines.forEach(function(l,i){ x.fillText(l,W/2,900+i*(fs*1.02)); });
+  lines.forEach(function(l,i){ fillSC(x,l,W/2,900+i*(fs*1.02),fs); });
   x.fillStyle="#cfa752"; x.font='italic 40px "PT Serif", Georgia, serif'; x.fillText(p.ep,W/2,y);
   x.font='500 40px "JetBrains Mono", monospace'; x.fillText(sec?"СЕКРЕТНЫЙ РЕЗУЛЬТАТ":"СОВПАДЕНИЕ "+top.pct+"%",W/2,y+70);
   x.fillStyle="#ebe1cc"; x.font='800 46px "Alegreya SC", Georgia, serif';
-  ql.forEach(function(l,i){ x.fillText(l,W/2,y+160+i*56); });
+  ql.forEach(function(l,i){ fillSC(x,l,W/2,y+160+i*56,46); });
   x.restore();
   x.fillStyle="#b8342c"; x.font='500 30px "JetBrains Mono", monospace'; x.fillText("А какая роль у тебя?",W/2,H-100);
   return c.toDataURL("image/png");
+}
+/* Alegreya SC: малая «у» похожа на латинскую Y — рисуем её уменьшенной заглавной У */
+function fillSC(x,t,cx,y,fs){
+  var F=function(z){ return '800 '+z+'px "Alegreya SC", Georgia, serif'; }, parts=t.split("у"), w=0, i, al=x.textAlign;
+  for(i=0;i<parts.length;i++){ x.font=F(fs); w+=x.measureText(parts[i]).width; if(i<parts.length-1){ x.font=F(fs*0.76); w+=x.measureText("У").width; } }
+  x.textAlign="left"; var px=cx-w/2;
+  for(i=0;i<parts.length;i++){ x.font=F(fs); x.fillText(parts[i],px,y); px+=x.measureText(parts[i]).width; if(i<parts.length-1){ x.font=F(fs*0.76); x.fillText("У",px,y); px+=x.measureText("У").width; } }
+  x.textAlign=al; x.font=F(fs);
 }
 function wrapLines(x,text,maxW){ var words=text.split(" "),line="",out=[]; words.forEach(function(w){ var t=line?line+" "+w:w; if(x.measureText(t).width>maxW&&line){ out.push(line); line=w; } else line=t; }); out.push(line); return out; }
 var cardFile=null;
@@ -694,6 +703,27 @@ $("viewStart").addEventListener("click",start);
 $("start").addEventListener("click",start);
 renderHist(); openFromHash();
 window.addEventListener("hashchange",openFromHash);
+})();
+</script>
+<script>
+(function(){
+  function fix(){
+    if(!document.body) return;
+    var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT), n, todo=[];
+    while((n=w.nextNode())){
+      if(n.nodeValue.indexOf("у")<0) continue;
+      var p=n.parentElement; if(!p||p.classList.contains("scu")||/^(SCRIPT|STYLE|TEXTAREA|TITLE)$/.test(p.tagName)) continue;
+      var cs=getComputedStyle(p); if(cs.fontFamily.indexOf("Alegreya SC")<0||cs.textTransform==="uppercase") continue;
+      todo.push(n);
+    }
+    todo.forEach(function(n){
+      var f=document.createDocumentFragment();
+      n.nodeValue.split("у").forEach(function(t,i){ if(i){ var sp=document.createElement("span"); sp.className="scu"; sp.textContent="У"; f.appendChild(sp); } if(t) f.appendChild(document.createTextNode(t)); });
+      n.parentNode.replaceChild(f,n);
+    });
+  }
+  var q=false; function soon(){ if(q) return; q=true; requestAnimationFrame(function(){ q=false; fix(); }); }
+  document.addEventListener("DOMContentLoaded",function(){ fix(); new MutationObserver(soon).observe(document.body,{childList:true,subtree:true,characterData:true}); });
 })();
 </script>
 </body>
