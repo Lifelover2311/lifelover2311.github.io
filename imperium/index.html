@@ -53,6 +53,11 @@ h1{font-family:var(--f-display);font-weight:800;font-size:clamp(46px,11vw,88px);
 h1 span{display:block;color:var(--gilt)}
 .lead{font-size:19px;max-width:34em;margin:0 0 22px}
 .lead i{font-family:var(--f-it);color:var(--dust)}
+.verdict{position:absolute;left:50%;top:40%;width:max-content;max-width:86%;text-align:center;transform:translate(-50%,-50%) rotate(-5deg);background:rgba(13,11,9,.74);border:3px solid var(--seal);border-radius:6px;color:var(--seal);font-family:var(--f-display);font-weight:800;font-size:clamp(15px,4.6vw,26px);line-height:1.15;letter-spacing:.05em;text-transform:uppercase;padding:6px 14px 8px;opacity:0;pointer-events:none}
+.cover.say .verdict{animation:verd 5.6s ease both}
+@keyframes verd{0%{opacity:0;transform:translate(-50%,-50%) rotate(-5deg) scale(1.3)}7%{opacity:.95;transform:translate(-50%,-50%) rotate(-5deg) scale(1)}82%{opacity:.95}100%{opacity:0}}
+@media (hover:hover){.cover{cursor:help}}
+@media (prefers-reduced-motion:reduce){.cover.say .verdict{animation:none;opacity:0}.cover:hover .verdict{opacity:.95}}
 .facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-block:1px solid var(--rule);margin:0 0 24px}
 .facts div{padding:12px 10px 12px 0;min-width:0}
 .facts div + div{padding-left:12px;border-left:1px solid var(--rule)}
@@ -195,10 +200,10 @@ footer p{margin:0 0 6px}
 
 <!-- ВСТУПЛЕНИЕ -->
 <section id="intro" aria-labelledby="t">
-  <div class="cover" role="img" aria-label="Бесконечный архив Администратума"></div>
+  <div class="cover" id="cover" role="img" aria-label="Бесконечный архив Администратума"><span class="verdict" aria-hidden="true">Администратум уже всё решил за тебя</span></div>
   <div class="eyebrow">Серия «Твоя роль» · Анкета распределения</div>
   <h1 id="t">Твоя роль <span>в Империуме</span></h1>
-  <p class="lead">Империуму нужен каждый. Ответь на вопросы о самой обычной жизни: очереди, соседи, начальство, праздники. Администратум изучит анкету и решит, где от тебя будет больше пользы. <i>Администратум уже всё решил за тебя.</i></p>
+  <p class="lead">Империуму нужен каждый. Ответь на вопросы о самой обычной жизни: очереди, соседи, начальство, праздники. Администратум изучит анкету и решит, где от тебя будет больше пользы.</p>
   <div class="facts">
     <div><b>16</b><span>вопросов за раз</span></div>
     <div><b>32</b><span>в пуле: каждый раз другие</span></div>
@@ -343,6 +348,13 @@ var krovLast=ls("krov-primarhov-last");
 })();
 
 /* ---------- Вопросы ---------- */
+(function(){ var cv=$("cover"); if(!cv) return;
+  function say(){ cv.classList.remove("say"); void cv.offsetWidth; cv.classList.add("say"); }
+  cv.addEventListener("animationend",function(){ cv.classList.remove("say"); });
+  if(!reduce) setTimeout(say,1800);
+  cv.addEventListener("mouseenter",function(){ if(!reduce&&!cv.classList.contains("say")) say(); });
+  cv.addEventListener("click",say);
+})();
 function start(){
   track("start"); state.view=null; clearHash();
   state.qs=Q.pickQuestions(Math.random, prior); state.idx=0; state.picks=[]; state.times=[]; state.res=null;
