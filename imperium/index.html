@@ -348,7 +348,7 @@ var krovLast=ls("krov-primarhov-last");
 /* ---------- Вступление ---------- */
 (function(){
   var p=$("patron");
-  if(krovLast&&krovLast.n){ p.hidden=false; p.innerHTML="Кровь уже установлена: <b></b>. Осталось выяснить, где ты служишь."; p.querySelector("b").textContent=krovLast.n; }
+  if(krovLast&&krovLast.n){ p.hidden=false; p.innerHTML="Кровь установлена: <b></b>. Но на что-то жить надо. Узнай, какое место тебе найдётся в Империуме."; p.querySelector("b").textContent=krovLast.n; }
   else { p.hidden=false; p.innerHTML='Первая часть серии — <a href="https://lifelover2311.github.io/krov-primarhov/">«Кровь примархов»</a>. Пройдёшь её до анкеты — в анкете найдутся вопросы из твоего прошлого.'; }
   var last=ls(LKEY);
   if(last&&last.n&&!loadHist().length){ var el=$("last"); el.hidden=false; el.innerHTML="В прошлый раз тебя распределили: <b></b>. Вопросы будут другими."; el.querySelector("b").textContent=last.n; }
