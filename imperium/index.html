@@ -294,7 +294,7 @@ footer p{margin:0 0 6px}
     </div>
     <div class="traits" id="rTraits" hidden>
       <h3 class="h3">Заключение отдела кадров</h3>
-      <p class="tsub">Чем ближе зелёная метка к золотой, тем лучше ты подходишь на должность.</p>
+      <p class="tsub">Черты, важные для должности. Чем ближе зелёная метка к золотой, тем лучше ты подходишь.</p>
       <div class="tleg"><span><i></i>Кандидат</span><span><i class="g"></i><span id="rTEt"></span></span></div>
       <div id="rTList"></div>
       <p class="tnote" id="rTNote"></p>
@@ -517,6 +517,7 @@ function renderTraits(p, res){
   var pos=function(v){ return (50-Math.max(-1,Math.min(1,v))*46).toFixed(1)+"%"; };
   var L=$("rTList"); L.innerHTML=""; var worst=-1, wd=-1;
   Q.AXES.forEach(function(ax,i){
+    if(!p.vec[i]) return; /* черта не важна для роли — не показываем */
     var uv=u[i]/mx, rv=p.vec[i]/2, d=Math.abs(uv-rv); if(d>wd){ wd=d; worst=i; }
     var row=mk("div","trow"), lab=mk("div","tlab");
     lab.appendChild(mk("span",uv>0.25?"on":null,ax[1])); lab.appendChild(mk("span",uv<-0.25?"on":null,ax[2]));
