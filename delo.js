@@ -18,6 +18,63 @@ function roleArt(id){ return BASE+"imperium/art/"+ROLE_ART[id]+".jpg"; }
 function ls(k){ try{ return JSON.parse(localStorage.getItem(k)||"null"); }catch(e){ return null; } }
 function track(n){ try{ if(window.ym&&LIVE) ym(113669793,"reachGoal","delo_"+n); }catch(e){} }
 
+/* ---------- Передача связки между тестами через ссылку ----------
+   localStorage не переживает смену браузера (встроенный браузер Пикабу, ВК, Телеграма → обычный),
+   поэтому кровь и ответы первого теста едут в ссылке: ?k=lion&p=m5.3-m13.0.2
+   k — id примарха; p — ответы первого теста (вопрос.вариант[.вариант]), нужны для отсылок во втором. */
+var KA_KEY="krov-answers2";
+var BLOOD_NAME={lion:"Лев Эль’Джонсон",fulgrim:"Фулгрим",perturabo:"Пертурабо",khan:"Джагатай-хан",russ:"Леман Русс",dorn:"Рогал Дорн",curze:"Конрад Кёрз",sanguinius:"Сангвиний",ferrus:"Феррус Манус",angron:"Ангрон",guilliman:"Робаут Жиллиман",mortarion:"Мортарион",magnus:"Магнус Красный",horus:"Хорус Луперкаль",lorgar:"Лоргар Аврелиан",vulkan:"Вулкан",corax:"Коракс",alpharius:"Альфарий Омегон",emperor:"Император Человечества"};
+function encodeAnswers(ka){
+  if(!ka||typeof ka!=="object"||Array.isArray(ka)) return "";
+  var out=[];
+  Object.keys(ka).forEach(function(k){
+    var v=ka[k];
+    if(!/^[a-z]\d{1,3}$/.test(k)||!Array.isArray(v)||!v.length||v.length>2) return;
+    if(!v.every(function(x){ return typeof x==="number"&&x>=0&&x<=9&&x%1===0; })) return;
+    out.push(k+"."+v.join("."));
+  });
+  return out.slice(0,40).join("-");
+}
+function decodeAnswers(s){
+  var ka={};
+  if(typeof s!=="string"||s.length>400) return ka;
+  s.split("-").forEach(function(part){
+    var a=part.split("."), k=a[0], v=a.slice(1);
+    if(!/^[a-z]\d{1,3}$/.test(k)||v.length<1||v.length>2) return;
+    var nums=v.map(function(x){ return /^\d$/.test(x)?parseInt(x,10):-1; });
+    if(nums.some(function(x){ return x<0; })) return;
+    ka[k]=nums;
+  });
+  return ka;
+}
+/* Строка запроса для перехода ко второму тесту: "" если крови ещё нет */
+function carry(){
+  var b=ls(KROV_KEY); if(!b||!b.id||BLOOD_IDS.indexOf(b.id)<0) return "";
+  var q="?k="+encodeURIComponent(b.id), p=encodeAnswers(ls(KA_KEY));
+  if(p) q+="&p="+p;
+  return q;
+}
+/* Принять связку из ссылки: ссылка новее и надёжнее, чем то, что лежит в этом браузере */
+function adopt(){
+  try{
+    var sp=new URLSearchParams(location.search), k=sp.get("k");
+    if(!k||BLOOD_IDS.indexOf(k)<0) return false;
+    var cur=ls(KROV_KEY);
+    if(!cur||cur.id!==k) localStorage.setItem(KROV_KEY,JSON.stringify({id:k,n:BLOOD_NAME[k],d:Date.now()}));
+    var inc=decodeAnswers(sp.get("p")), keys=Object.keys(inc);
+    if(keys.length){
+      var ka=ls(KA_KEY); if(!ka||typeof ka!=="object"||Array.isArray(ka)) ka={};
+      keys.forEach(function(x){ ka[x]=inc[x]; });
+      ka._t=Date.now();
+      localStorage.setItem(KA_KEY,JSON.stringify(ka));
+    }
+    if(window.history&&history.replaceState) history.replaceState(null,"",location.pathname+location.hash);
+    track("adopt");
+    return true;
+  }catch(e){ return false; }
+}
+adopt();
+
 /* ---------- Заключения инспектора: отдельные тексты для пар «кровь + роль» ---------- */
 var PAIRS={
   "sanguinius:hospitaller":"Лечит всех подряд и без очереди. Себе приём не назначил ни разу.",
@@ -289,7 +346,7 @@ function mount(el,opts){
   btns.appendChild(save);
   if(!st.full){
     var a=mk("a","delo-btn ghost",st.blood?"Пройти вторую часть":"Пройти первую часть");
-    a.href=BASE+(st.blood?"imperium/":"krov-primarhov/"); a.addEventListener("click",function(){ track("to_"+(st.blood?"imperium":"krov")); });
+    a.href=BASE+(st.blood?"imperium/"+carry():"krov-primarhov/"); a.addEventListener("click",function(){ track("to_"+(st.blood?"imperium":"krov")); });
     btns.appendChild(a);
   }
   side.appendChild(btns);
@@ -312,5 +369,5 @@ function mount(el,opts){
   }).catch(function(){ if(seq===mountSeq) note.textContent="Не удалось собрать картинку. Обнови страницу."; });
 }
 
-window.DELO={mount:mount,state:getState,conclusion:conclusion,pairs:PAIRS,bloodLine:BLOOD_LINE,roleLine:ROLE_LINE,build:buildCard};
+window.DELO={mount:mount,carry:carry,state:getState,conclusion:conclusion,pairs:PAIRS,bloodLine:BLOOD_LINE,roleLine:ROLE_LINE,build:buildCard};
 })();
