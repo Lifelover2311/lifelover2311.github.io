@@ -464,6 +464,7 @@ function trackAnswer(){
 function finish(){
   var tsum=state.times.reduce(function(s,x){return s+(x||0);},0), per=tsum/state.qs.length;
   var res=Q.evaluate(state.qs,state.picks,per,Math.random());
+  bloodTie(res);
   res.sec=Math.round(tsum);
   res.kaine=false;
   state.res=res; scan();
@@ -506,6 +507,75 @@ function eggClick(el, k, text, mode){
     found(k); };
   el.addEventListener("click",go);
   el.addEventListener("keydown",function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); go(); } });
+}
+
+/* ---------- Связка с «Кровью примархов» ---------- */
+/* Роли, близкие примарху по духу: решают почти-ничью (разница до 3%) в пользу крови */
+var BLOOD_NEAR={lion:["inquisitor","commissar","knight","assassin"],fulgrim:["trader","chronicler","governor","navigator"],
+  perturabo:["techpriest","guard","ogryn","navy"],khan:["navy","trader","ratling","knight"],russ:["guard","ogryn","ratling","knight"],
+  dorn:["guard","techpriest","adept","navy","arbitrator"],curze:["arbitrator","assassin","underhive","inquisitor"],
+  sanguinius:["sororitas","hospitaller","knight","preacher"],ferrus:["techpriest","ogryn","knight"],angron:["guard","ogryn","underhive"],
+  guilliman:["adept","governor","navy","chronicler","commissar"],mortarion:["hospitaller","agri","guard","underhive"],
+  magnus:["psyker","astropath","chronicler","navigator"],horus:["commissar","governor","navy","inquisitor"],
+  lorgar:["preacher","sororitas","chronicler"],vulkan:["hospitaller","underhive","agri","techpriest"],
+  corax:["assassin","underhive","ratling"],alpharius:["assassin","genecult","inquisitor","trader"],emperor:["governor","psyker","inquisitor"]};
+function bloodTie(res){
+  var id=krovLast&&krovLast.id, near=id&&BLOOD_NEAR[id], rk=res.ranking;
+  if(!near||rk.length<2) return;
+  var a=rk[0], b=rk[1];
+  if(a.pct-b.pct>3||near.indexOf(a.r.id)>=0||near.indexOf(b.r.id)<0) return;
+  var pa=a.pct; a.pct=b.pct; b.pct=pa; rk[0]=b; rk[1]=a;
+}
+/* Реплики-комбо «кровь + роль»; "*:роль" — для любой крови, {GEN} — примарх в родительном падеже */
+var BLOOD_GEN={lion:"Льва",fulgrim:"Фулгрима",perturabo:"Пертурабо",khan:"Хана",russ:"Русса",dorn:"Дорна",curze:"Кёрза",
+  sanguinius:"Сангвиния",ferrus:"Ферруса",angron:"Ангрона",guilliman:"Жиллимана",mortarion:"Мортариона",magnus:"Магнуса",
+  horus:"Хоруса",lorgar:"Лоргара",vulkan:"Вулкана",corax:"Коракса",alpharius:"Альфария",emperor:"Императора"};
+var COMBO={
+  "lion:inquisitor":"Кровь Льва и допуск Инквизиции. Хранить секреты у вас семейное.",
+  "lion:commissar":"Дисциплина у тебя в крови, причём буквально.",
+  "fulgrim:trader":"Потомок Фулгрима с торговым патентом. Возишь только лучшее и, кажется, многовато благовоний.",
+  "fulgrim:chronicler":"Ты пишешь о совершенстве с кровью того, кто искал его слишком усердно. Перечитай черновик. Нет, всё, хватит.",
+  "perturabo:guard":"Отец строил стены, ты за ними сидишь. Стены держат. Ему, кстати, так никто и не сказал спасибо.",
+  "perturabo:techpriest":"Чертежи отца ты знаешь наизусть. Механикус надеются, что его обиды ты унаследовал не все.",
+  "khan:adept":"Кровь Хана за столом с бумагами. Формы ты заполняешь быстро. Слишком быстро, их проверяли трижды.",
+  "khan:navy":"Кровь Хана на мостике. Флот просит хотя бы иногда дожидаться остальных.",
+  "russ:chronicler":"Волки рассказывают саги у костра, а не пишут их на бумаге. Скальды тебе этого не простят.",
+  "russ:ratling":"Кровь Волков в ратлинге. Охотиться ты любишь по-прежнему, просто с крыши и издалека.",
+  "dorn:guard":"Кровь Дорна на стене. Классика. Только не обсуждай кладку с потомками Пертурабо.",
+  "dorn:techpriest":"Кровь Дорна у Механикус. Строишь ты на совесть, а спорить с тобой о допусках бесполезно.",
+  "curze:arbitrator":"Ты наводишь порядок страхом, как отец. Разница в том, что у тебя есть ордер.",
+  "curze:underhive":"Отец вырос в самом тёмном городе Галактики. Подулье рядом с Нострамо — курорт.",
+  "sanguinius:hospitaller":"Кровь Ангела, а ты останавливаешь чужую. Красиво.",
+  "sanguinius:sororitas":"Крылья по наследству не передались. Готовность к последнему бою передалась.",
+  "ferrus:techpriest":"«Плоть слаба» у тебя в крови. Механикус оценили, что ты пришёл с готовыми убеждениями.",
+  "ferrus:servitor":"«Плоть слаба», говорил отец. Механикус поняли буквально.",
+  "angron:agri":"Кровь Ангрона, а ты выращиваешь капусту. Возможно, лучшее, что случилось с этой линией.",
+  "angron:ogryn":"Кровь Ангрона и сила огрина. Командир просит тебя не нервничать. Вообще никогда.",
+  "guilliman:adept":"Отец написал Кодекс Астартес, а ты его подшиваешь. Семейное дело.",
+  "guilliman:governor":"Своя планета для потомка Жиллимана — только начало. Ультрамар тоже начинался с одной.",
+  "mortarion:hospitaller":"Потомок Мортариона лечит людей. Кто-то в этой семье должен был.",
+  "mortarion:agri":"Кровь Мортариона на агромире. Урожай растёт. Мухи тоже.",
+  "magnus:silence":"Кровь Тысячи Сынов, а живёшь среди тех, кто глушит псайкеров. Интересно, кто из вас больше нервничает.",
+  "magnus:psyker":"Красный Король гордился бы. Сёстры Безмолвия уже в курсе.",
+  "horus:commissar":"Кровь Воителя на должности, которая расстреливает за измену. Иронию оценят все, кроме тебя.",
+  "horus:inquisitor":"Ты знаешь, как падают лучшие. Тем опаснее ты для ереси.",
+  "lorgar:preacher":"Кровь Уризена и кафедра проповедника. Главное, проверяй, каким богам читаешь.",
+  "lorgar:chronicler":"Отец тоже написал книгу. Хочется верить, что твоя менее опасная.",
+  "vulkan:underhive":"Отец жил среди простых людей Ноктюрна. Ты тоже не рвёшься наверх, и правильно.",
+  "vulkan:techpriest":"Кровь Вулкана в кузнице Механикус. Молотом ты всё равно работаешь лучше любого сервитора.",
+  "corax:underhive":"Отец поднял восстание в тюрьме. Нижние уровни улья — неплохое место для начала.",
+  "corax:assassin":"Тень отца никуда не делась. Ты просто научился работать в ней за жалованье Официо.",
+  "alpharius:assassin":"Ты в Официо Ассасинорум. Или Официо думает, что ты там. Мы так и не выяснили.",
+  "alpharius:adept":"Тебя нет ни в одном реестре. Для потомка Альфария это высшая форма бюрократии.",
+  "alpharius:genecult":"Ты внедрён в культ. Или культ внедрён в тебя. В вашей семье это одно и то же.",
+  "emperor:custodian":"Потомок Императора стал Кустодием. Охраняешь, получается, родственника.",
+  "emperor:adept":"Кровь Императора, а ты в Администратуме. Он, если подумать, тоже десять тысяч лет сидит на одном месте.",
+  "*:servitor":"Кровь {GEN} сдана в переработку. Механикус благодарят за качественное сырьё."
+};
+function comboLine(roleId){
+  var id=krovLast&&krovLast.id; if(!id||!BLOOD_GEN[id]) return null;
+  var t=COMBO[id+":"+roleId]||COMBO["*:"+roleId]; if(!t) return null;
+  return {key:(COMBO[id+":"+roleId]?id:"any")+"_"+roleId, text:t.replace("{GEN}",BLOOD_GEN[id])};
 }
 
 /* ---------- Результат ---------- */
@@ -558,6 +628,8 @@ function renderResult(){
   if(!sec&&p.sisters&&Math.random()<p.sisters){ extra.push(["extra","Да, мужчинам тоже можно. Сёстры не против."]); found("sisters"); }
   if(!sec&&p.id==="commissar"&&res.user[Q.LETTERS.indexOf("B")]<0){ extra.push(["extra","Особый случай. Тебя бы понял Кайафас Каин — комиссар, который всю жизнь пытался сбежать от войны и каждый раз случайно её выигрывал."]); found("kaine"); }
   if(!state.view&&krovLast&&krovLast.n) extra.push(["extra","<b>Кровь:</b> "+esc(krovLast.n)+". <b>Служба:</b> "+esc(p.n)+"."]);
+  var cmb=!state.view?comboLine(p.id):null;
+  if(cmb){ extra.push(["extra","<i>"+esc(cmb.text)+"</i>"]); track("combo",{pair:cmb.key}); }
   var dream=prior&&Array.isArray(prior.m11)?prior.m11[0]:null;
   if(!state.view&&dream!=null&&Q.DREAM.names[dream]){
     var hit=Q.DREAM.match[dream].indexOf(p.id)>=0;
