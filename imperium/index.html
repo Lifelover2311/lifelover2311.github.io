@@ -151,6 +151,19 @@ sc-u{font-size:.76em}
 .cols li{position:relative;padding-left:18px}
 .cols li::before{content:"";position:absolute;left:0;top:.62em;width:7px;height:7px;background:var(--gilt);transform:rotate(45deg)}
 .cols .neg li::before{background:transparent;border:1px solid var(--seal)}
+.traits{margin:26px 0 4px}
+.traits .tsub{font-size:14px;color:var(--dust);margin:-4px 0 12px}
+.tleg{display:flex;flex-wrap:wrap;gap:6px 16px;font:12px var(--f-mono);color:var(--dust);margin:0 0 12px;text-transform:uppercase;letter-spacing:.06em}
+.tleg i{display:inline-block;width:10px;height:10px;border-radius:50%;background:#7fb08f;margin-right:6px;vertical-align:-1px}
+.tleg i.g{border-radius:0;width:3px;height:12px;background:var(--gilt)}
+.trow{margin:0 0 11px}
+.tlab{display:flex;justify-content:space-between;gap:8px;font:12px var(--f-mono);color:var(--dust);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.tlab .on{color:var(--bone)}
+.tbar{position:relative;height:8px;background:var(--vault-2);border:1px solid var(--rule)}
+.tbar:after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--rule)}
+.tbar .r{position:absolute;top:-5px;width:3px;height:16px;background:var(--gilt);transform:translateX(-50%)}
+.tbar .u{position:absolute;top:50%;width:13px;height:13px;border-radius:50%;background:#7fb08f;border:2px solid var(--ink);transform:translate(-50%,-50%);z-index:1}
+.tnote{font-size:14px;color:var(--dust);margin:12px 0 0;border-top:1px solid var(--rule);padding-top:10px}
 .scene{margin:0;padding:16px 18px;background:var(--vault-2);border-left:2px solid var(--gilt)}
 .scene p{margin:0}
 .motto{font-family:var(--f-display);font-weight:800;font-size:clamp(26px,6vw,36px);line-height:1.12;margin:26px 0 4px;text-wrap:balance}
@@ -278,6 +291,13 @@ footer p{margin:0 0 6px}
     <div class="cols">
       <div><h3 class="h3">Сильные стороны</h3><ul id="rS"></ul></div>
       <div class="neg"><h3 class="h3">Слабые стороны</h3><ul id="rSh"></ul></div>
+    </div>
+    <div class="traits" id="rTraits" hidden>
+      <h3 class="h3">Заключение отдела кадров</h3>
+      <p class="tsub">Чем ближе зелёная метка к золотой, тем лучше ты подходишь на должность.</p>
+      <div class="tleg"><span><i></i>Кандидат</span><span><i class="g"></i><span id="rTEt"></span></span></div>
+      <div id="rTList"></div>
+      <p class="tnote" id="rTNote"></p>
     </div>
     <h3 class="h3" id="rScH">Сцена из жизни</h3>
     <div class="scene" id="rScBox"><p id="rSc"></p></div>
@@ -490,6 +510,24 @@ function eggClick(el, k, text, mode){
 
 /* ---------- Результат ---------- */
 function regNo(res){ var s=0; res.user.forEach(function(v,i){ s=(s*31+Math.round((v+3)*97)*(i+7))%9973; }); var n=String(1000+s%9000); var j=s%4; return "Дело № 77-Б-"+n.slice(0,j)+(n[j]==="0"?"O":n[j])+n.slice(j+1); }
+/* ---------- Заключение отдела кадров: 12 двусторонних шкал ---------- */
+function renderTraits(p, res){
+  var box=$("rTraits"); if(!p||!p.vec||!res.user){ box.hidden=true; return; }
+  var u=res.user, mx=0; u.forEach(function(x){ mx=Math.max(mx,Math.abs(x)); }); if(!mx) mx=1;
+  var pos=function(v){ return (50-Math.max(-1,Math.min(1,v))*46).toFixed(1)+"%"; };
+  var L=$("rTList"); L.innerHTML=""; var worst=-1, wd=-1;
+  Q.AXES.forEach(function(ax,i){
+    var uv=u[i]/mx, rv=p.vec[i]/2, d=Math.abs(uv-rv); if(d>wd){ wd=d; worst=i; }
+    var row=mk("div","trow"), lab=mk("div","tlab");
+    lab.appendChild(mk("span",uv>0.25?"on":null,ax[1])); lab.appendChild(mk("span",uv<-0.25?"on":null,ax[2]));
+    var bar=mk("div","tbar"), r=mk("span","r"), d2=mk("span","u"); r.style.left=pos(rv); d2.style.left=pos(uv);
+    bar.appendChild(r); bar.appendChild(d2); row.appendChild(lab); row.appendChild(bar); L.appendChild(row);
+  });
+  $("rTEt").textContent="Эталон: "+p.n;
+  var ax=Q.AXES[worst], side=function(v){ return v>0.15?"«"+ax[1]+"»":v<-0.15?"«"+ax[2]+"»":"посередине"; };
+  $("rTNote").textContent="Главное расхождение с эталоном — шкала «"+ax[1]+" — "+ax[2]+"»: кандидат — "+side(u[worst]/mx)+", эталон — "+side(p.vec[worst]/2)+".";
+  box.hidden=false;
+}
 function renderResult(){
   var res=state.res, rk=res.ranking, top=rk[0], sec=res.secret;
   var p=sec?Q.SECRET[sec]:top.r;
@@ -528,6 +566,7 @@ function renderResult(){
   /* текст досье */
   $("rDesc").textContent=p.d.replace("{SEC}",res.sec!=null?res.sec:"считанные");
   list($("rS"),p.s); list($("rSh"),p.sh);
+  renderTraits(sec?null:p, res);
   $("rScH").hidden=$("rScBox").hidden=!p.sc; $("rSc").textContent=p.sc||"";
   $("rM").textContent="«"+p.m+"»"; $("rMn").textContent=p.mNote||""; $("rMn").hidden=!p.mNote;
   var F=$("rFacts"); F.innerHTML="";
