@@ -575,7 +575,7 @@ var CAUGHT = "Обнаружен агент Механикус. Какой ма�
 var BIAS = {"adept":-0.12,"guard":0.03,"commissar":0.035,"techpriest":0.009,"inquisitor":-0.014,"sororitas":0.12,"preacher":0.085,"trader":0.045,"navigator":0.048,"astropath":0.043,"arbitrator":-0.043,"assassin":-0.07,"governor":-0.03,"hospitaller":-0.043,"underhive":0.02,"navy":-0.095,"psyker":0.07,"genecult":-0.014,"ogryn":0.005,"ratling":-0.03,"silence":0.022,"knight":0.037,"agri":-0.035,"chronicler":0.025};
 
 /* Пороги секретов */
-var FAST = {limit:2.0, chance:0.2, servitor:0.6}; /* limit — секунд на вопрос; внутри шанса servitor — доля Сервитора, остальное Скитарий */
+var FAST = {limit:3.0, chance:0.35, servitor:0.6}; /* limit — секунд на вопрос; внутри шанса servitor — доля Сервитора, остальное Скитарий */
 var CUSTODIAN = {B:0.36, T:0.36, L:-0.36, O:0.18};    /* минимальные значения шкал (L — в сторону долга) */
 
 /* ---------- ЛОГИКА ---------- */
