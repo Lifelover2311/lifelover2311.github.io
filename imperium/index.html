@@ -525,8 +525,8 @@ function renderTraits(p, res){
     bar.appendChild(r); bar.appendChild(d2); row.appendChild(lab); row.appendChild(bar); L.appendChild(row);
   });
   $("rTEt").textContent="Эталон: "+p.n;
-  var ax=Q.AXES[worst], side=function(v){ return v>0.15?"«"+ax[1]+"»":v<-0.15?"«"+ax[2]+"»":"посередине"; };
-  $("rTNote").textContent="Главное расхождение с эталоном — шкала «"+ax[1]+" — "+ax[2]+"»: кандидат — "+side(u[worst]/mx)+", эталон — "+side(p.vec[worst]/2)+".";
+  var ax=Q.AXES[worst];
+  $("rTNote").textContent="Главное расхождение с эталоном — шкала «"+ax[1]+" — "+ax[2]+"».";
   box.hidden=false;
 }
 function renderResult(){
