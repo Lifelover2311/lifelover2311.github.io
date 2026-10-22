@@ -327,6 +327,7 @@ footer p{margin:0 0 6px}
   </div>
   <textarea class="sharebox" id="sharebox" readonly hidden aria-label="Текст результата"></textarea>
   <div class="cardout" id="cardOut" hidden><img id="cardImg" alt="Карточка с результатом теста"><p class="note" id="cardNote"></p></div>
+  <div id="delo" hidden></div>
   <div class="hist" id="histRes" hidden></div>
 
   <div class="thanks" id="thanks" hidden>
@@ -350,6 +351,7 @@ footer p{margin:0 0 6px}
 </div>
 
 <script src="quiz.js"></script>
+<script src="../delo.js"></script>
 <script>
 (function(){
 "use strict";
@@ -666,6 +668,7 @@ function renderResult(){
   $("cardOut").hidden=true; $("copied").textContent=""; $("sharebox").hidden=true;
   if(!state.view){ ls(LKEY,{id:p.id,n:p.n,d:Date.now()}); saveHist(res,p,top); }
   renderView(); renderHist(); prepCard();
+  if(state.view) $("delo").hidden=true; else if(window.DELO) DELO.mount($("delo"));
   show("result");
 }
 function peek(x){ var r=x.r, P=$("rPeek"); P.hidden=false; P.innerHTML="";
