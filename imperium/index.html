@@ -91,6 +91,7 @@ sc-u{font-size:.76em}
 .prog i.cur{background:var(--seal)}
 .card{position:relative;background:rgba(26,22,18,.94);border:1px solid var(--gilt-deep);outline:1px solid var(--rule);outline-offset:4px;padding:24px 22px 22px;margin:4px}
 .qtext{font-weight:500;font-size:clamp(20px,4.6vw,26px);line-height:1.3;margin:0 0 8px;text-wrap:balance}
+.qped{font-family:var(--f-it);font-style:italic;font-size:14px;color:var(--dust);margin:0 0 14px;padding-bottom:12px;border-bottom:1px dashed var(--rule)}
 .qform{font-family:var(--f-it);font-style:italic;font-size:15px;color:var(--dust);margin:0 0 20px}
 .card.cb{border-color:var(--seal)}
 .card.cb .qform{color:#e0a29b;font-style:normal;font-family:var(--f-body);padding:8px 12px;background:var(--seal-soft);border-left:2px solid var(--seal)}
@@ -253,6 +254,7 @@ footer p{margin:0 0 6px}
   <div class="prog" id="prog" aria-hidden="true"></div>
   <div class="card" id="qcard">
     <span class="cbmark" id="cbmark" hidden>Из архива «Крови примархов»</span>
+    <p class="qped" id="qped" hidden></p>
     <p class="qtext" id="qtext"></p>
     <p class="qform" id="qform"></p>
     <p class="qmulti" id="qmulti" hidden>Можно выбрать два варианта</p>
@@ -404,6 +406,7 @@ function renderQ(){
   $("qcount").textContent="Вопрос "+String(state.idx+1).padStart(2,"0")+" / "+n;
   $("prog").querySelectorAll("i").forEach(function(el,i){ el.className=i<state.idx?"on":(i===state.idx?"cur":""); });
   $("qcard").classList.toggle("cb",q.cb); $("cbmark").hidden=!q.cb;
+  $("qped").textContent=pedigreeLine(); $("qped").hidden=(state.idx!==0||!$("qped").textContent);
   $("qtext").textContent=q.t; $("qform").textContent=q.f; $("qform").hidden=!q.f;
   $("qmulti").hidden=q.max<2;
   var ul=$("answers"); ul.innerHTML=""; ul.classList.toggle("multi",q.max>1);
@@ -528,6 +531,29 @@ function bloodTie(res){
   if(a.pct-b.pct>3||near.indexOf(a.r.id)>=0||near.indexOf(b.r.id)<0) return;
   var pa=a.pct; a.pct=b.pct; b.pct=pa; rk[0]=b; rk[1]=a;
 }
+/* Строка «Родословная» над первым вопросом: по одной на примарха, на баллы не влияет */
+var PEDIGREE={
+  lion:"Родословная: Лев. Графа «Лучший друг» оставлена пустой. Заявитель говорит, что в прошлый раз это плохо закончилось.",
+  fulgrim:"Родословная: Фулгрим. Заявитель подобрал в канцелярии красивую старинную ручку. Администратум просит ею не пользоваться.",
+  perturabo:"Родословная: Пертурабо. В графе «Автор проекта» заявитель просит поставить его имя, а не имя брата. Просит давно.",
+  khan:"Родословная: Джагатай-хан. Заявитель сдал анкету и ушёл в Паутину. Заметили не сразу.",
+  russ:"Родословная: Леман Русс. В графе «Поручители» указаны двое волков. Подписались лапой.",
+  dorn:"Родословная: Рогал Дорн. Заявитель сам нашёл ошибку в анкете, сам исправил и сам себя за неё осудил.",
+  curze:"Родословная: Конрад Кёрз. Заявитель утверждает, что знает, чем всё кончится. Ответ из анкеты это не подтверждает и не опровергает.",
+  sanguinius:"Родословная: Сангвиний. Заявитель всем сочувствует, инспектору тоже. Инспектору неловко.",
+  ferrus:"Родословная: Феррус Манус. Графа «Близкий друг» заполнена. Инспектор советует пересмотреть.",
+  angron:"Родословная: Ангрон. Заявитель просит вернуть его на арену, к друзьям. Отказано, как и в прошлый раз.",
+  guilliman:"Родословная: Жиллиман. Заявитель просит добавить к анкете оглавление, нумерацию страниц и рабочую систему апелляций. Администратум впервые видит, чтобы кто-то так этого хотел.",
+  mortarion:"Родословная: Мортарион. Заявитель просит не ставить его в очередь за псайкером. Очередь стоит отдельно.",
+  magnus:"Родословная: Магнус. Заявитель пытался предупредить Администратум телепатически. Получен выговор за нарушение канала связи.",
+  horus:"Родословная: Хорус. В графе «Прошлые ранения» стоит «Давин». Инспектор просит убрать из кабинета острые предметы.",
+  lorgar:"Родословная: Лоргар. К анкете приложена проповедь о божественности Императора. Император просил этого не делать. Приложение принято.",
+  vulkan:"Родословная: Вулкан. Заявитель просит раздать пустые бланки нуждающимся. Хотя бы на растопку. Администратум в замешательстве.",
+  corax:"Родословная: Коракс. Предыдущий выход из учреждения оформлен как побег. Заявитель настаивает, что это была плановая эвакуация.",
+  alpharius:"Родословная: Альфарий Омегон. В графе «Имя» стоят два имени. В графе «Количество заявителей» прочерк. Администратум согласен.",
+  emperor:"Родословная: Император Человечества. Заявитель просит отметить, что он не бог. Администратум отметил. Верующие не согласны."
+};
+function pedigreeLine(){ var id=krovLast&&krovLast.id; return (id&&PEDIGREE[id])||""; }
 /* Реплики-комбо «кровь + роль»; "*:роль" — для любой крови, {GEN} — примарх в родительном падеже */
 var BLOOD_GEN={lion:"Льва",fulgrim:"Фулгрима",perturabo:"Пертурабо",khan:"Хана",russ:"Русса",dorn:"Дорна",curze:"Кёрза",
   sanguinius:"Сангвиния",ferrus:"Ферруса",angron:"Ангрона",guilliman:"Жиллимана",mortarion:"Мортариона",magnus:"Магнуса",
