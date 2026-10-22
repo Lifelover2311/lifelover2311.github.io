@@ -396,7 +396,7 @@ var krovLast=ls("krov-primarhov-last");
 })();
 function start(){
   track("start"); state.view=null; clearHash();
-  state.qs=Q.pickQuestions(Math.random, prior); state.idx=0; state.picks=[]; state.times=[]; state.res=null;
+  state.qs=Q.pickQuestions(Math.random, prior, krovLast&&krovLast.id); state.idx=0; state.picks=[]; state.times=[]; state.res=null;
   var nCb=state.qs.filter(function(q){return q.cb;}).length; if(nCb) tp({callbacks:nCb});
   var pr=$("prog"); pr.innerHTML=""; state.qs.forEach(function(){ pr.appendChild(mk("i")); });
   show("quiz"); renderQ();
