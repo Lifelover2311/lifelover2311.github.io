@@ -470,6 +470,8 @@ function trackAnswer(){
 function finish(){
   var tsum=state.times.reduce(function(s,x){return s+(x||0);},0), per=tsum/state.qs.length;
   var res=Q.evaluate(state.qs,state.picks,per,Math.random());
+  /* Ответы для отсылок в следующих тестах серии: {id вопроса: [номера вариантов в исходном порядке]}, как krov-answers2 в первом тесте */
+  try{ var IA="imperium-answers", ia={}; state.qs.forEach(function(q,k){ var p=state.picks[k]; if(p&&p.length) ia[q.id]=p.map(function(x){return x.i;}); }); ia._t=Date.now(); localStorage.setItem(IA,JSON.stringify(ia)); }catch(e){}
   bloodTie(res);
   res.sec=Math.round(tsum);
   res.kaine=false;
