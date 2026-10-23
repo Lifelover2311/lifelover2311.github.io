@@ -138,7 +138,7 @@ var PAIRS={
   "khan:trader":"Был везде, ничего не должен. Патент хранится в седле."
 };
 
-/* Для остальных пар заключение собирается из двух кусочков: про кровь и про должность */
+/* Для остальных пар заключение собирается из двух кусочков: про кровь и про роль */
 var BLOOD_LINE={
   sanguinius:"Благородство передалось по крови, усталость тоже.",
   corax:"Тишину любит, лишние вопросы не любит.",
@@ -275,15 +275,15 @@ function makeCard(st,imgB,imgR){
   x.fillStyle="#cfa752"; x.font="500 30px "+MONO; x.fillText(caseNo(st).toUpperCase(),W/2,334);
   var pw=424,ph=590,gap=40,x0=(W-2*pw-gap)/2,y0=392;
   panel(x,x0,y0,pw,ph,st.blood?imgB:null,"КРОВЬ НЕ УСТАНОВЛЕНА");
-  panel(x,x0+pw+gap,y0,pw,ph,st.role?imgR:null,"ДОЛЖНОСТЬ НЕ УКАЗАНА");
+  panel(x,x0+pw+gap,y0,pw,ph,st.role?imgR:null,"РОЛЬ НЕ УКАЗАНА");
   var cy=y0+ph+62;
   caption(x,x0+pw/2,cy,"КРОВЬ ПРИМАРХА",st.blood?st.blood.n:"",pw,!st.blood);
-  caption(x,x0+pw+gap+pw/2,cy,"ДОЛЖНОСТЬ",st.role?st.role.n:"",pw,!st.role);
+  caption(x,x0+pw+gap+pw/2,cy,"РОЛЬ",st.role?st.role.n:"",pw,!st.role);
   /* разделитель */
   x.strokeStyle="#3a3027"; x.lineWidth=2; x.beginPath(); x.moveTo(96,1216); x.lineTo(W-96,1216); x.stroke();
   x.fillStyle="#cfa752"; x.font="500 28px "+MONO; x.fillText("ЗАКЛЮЧЕНИЕ ИНСПЕКТОРА",W/2,1282);
   var txt=st.full?conclusion(st.blood,st.role)
-    :(st.blood?"Заключение не составлено: в деле нет должности. Её определяет вторая часть серии."
+    :(st.blood?"Заключение не составлено: в деле нет роли. Её определяет вторая часть серии."
               :"Заключение не составлено: в деле нет крови. Её определяет первая часть серии.");
   var fs=52, lines, maxW=W-200;
   for(;fs>=34;fs-=2){ x.font="italic "+fs+"px "+SERIF; lines=wrapLines(x,txt,maxW); if(lines.length<=5) break; }
@@ -337,9 +337,9 @@ function mount(el,opts){
   el.hidden=false; el.className="delo"; el.innerHTML="";
   el.appendChild(mk("div","delo-eyebrow","Серия тестов · общее дело"));
   el.appendChild(mk("h3",null,"Личное дело"));
-  var lead=st.full?"Кровь и должность собраны в одном деле. Сохрани карточку и отправь тем, кто ещё не проходил."
-    :(st.blood?"Дело заполнено наполовину: кровь установлена, а должности в нём нет. Пройди вторую часть, и инспектор составит заключение."
-              :"Дело заполнено наполовину: должность есть, а чья в тебе кровь, неизвестно. Пройди первую часть, и инспектор составит заключение.");
+  var lead=st.full?"Кровь и роль собраны в одном деле. Сохрани карточку и отправь тем, кто ещё не проходил."
+    :(st.blood?"Дело заполнено наполовину: кровь установлена, а роли в нём нет. Пройди вторую часть, и инспектор составит заключение."
+              :"Дело заполнено наполовину: роль есть, а чья в тебе кровь, неизвестно. Пройди первую часть, и инспектор составит заключение.");
   el.appendChild(mk("p",null,lead));
   var row=mk("div","delo-row"), img=mk("img","delo-img"); img.alt="Карточка «Личное дело»"; row.appendChild(img);
   var side=mk("div","delo-side"), btns=mk("div","delo-btns"), save=mk("button","delo-btn","Сохранить карточку"); save.type="button"; save.disabled=true;
