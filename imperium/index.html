@@ -353,6 +353,7 @@ footer p{margin:0 0 6px}
 </div>
 
 <script src="quiz.js"></script>
+<script src="../pairs.js"></script>
 <script src="../delo.js"></script>
 <script>
 (function(){
@@ -603,8 +604,9 @@ var COMBO={
 };
 function comboLine(roleId){
   var id=krovLast&&krovLast.id; if(!id||!BLOOD_GEN[id]) return null;
-  var t=COMBO[id+":"+roleId]||COMBO["*:"+roleId]; if(!t) return null;
-  return {key:(COMBO[id+":"+roleId]?id:"any")+"_"+roleId, text:t.replace("{GEN}",BLOOD_GEN[id])};
+  var all=window.PAIRS_ALL&&window.PAIRS_ALL[id+":"+roleId];
+  var t=all||COMBO[id+":"+roleId]||COMBO["*:"+roleId]; if(!t) return null;
+  return {key:((all||COMBO[id+":"+roleId])?id:"any")+"_"+roleId, text:t.replace("{GEN}",BLOOD_GEN[id])};
 }
 
 /* ---------- Результат ---------- */

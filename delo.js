@@ -191,7 +191,7 @@ var ROLE_LINE={
   skitarius:"Движется быстро, думает по алгоритму."
 };
 function conclusion(b,r){
-  var t=PAIRS[b.id+":"+r.id];
+  var t=(window.PAIRS_ALL&&window.PAIRS_ALL[b.id+":"+r.id])||PAIRS[b.id+":"+r.id];
   if(t) return t;
   var p=BLOOD_LINE[b.id], q=ROLE_LINE[r.id];
   if(p&&q) return p+" "+q;
@@ -327,6 +327,18 @@ function injectCSS(){
 function mk(tag,cls,txt){ var e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; }
 function canShareFiles(){ try{ return !!(window.matchMedia&&matchMedia("(pointer: coarse)").matches)&&!!navigator.canShare&&navigator.canShare({files:[new File([""],"a.png",{type:"image/png"})]}); }catch(e){ return false; } }
 
+/* Тексты пар лежат в отдельном файле; на странице теста про Империум он подключён заранее, на странице примархов подгружается здесь. */
+var pairsP=null;
+function ensurePairs(){
+  if(window.PAIRS_ALL) return Promise.resolve();
+  if(pairsP) return pairsP;
+  pairsP=new Promise(function(res){
+    var sc=document.createElement("script"); sc.src=BASE+"pairs.js"; sc.onload=sc.onerror=function(){ res(); };
+    document.head.appendChild(sc);
+  });
+  return pairsP;
+}
+
 var mountSeq=0;
 function mount(el,opts){
   if(!el) return;
@@ -353,7 +365,7 @@ function mount(el,opts){
   side.appendChild(btns);
   var note=mk("p","delo-note","Собираю дело…"); side.appendChild(note);
   row.appendChild(side); el.appendChild(row);
-  buildCard(st).then(function(canvas){
+  ensurePairs().then(function(){ return buildCard(st); }).then(function(canvas){
     if(seq!==mountSeq) return;
     var url=canvas.toDataURL("image/png"); img.src=url; note.textContent="Картинка 9:16 для сторис. На телефоне можно нажать на неё и удерживать.";
     save.disabled=false;
