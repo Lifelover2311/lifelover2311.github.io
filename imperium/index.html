@@ -658,7 +658,7 @@ function renderResult(){
   if(sec==="custodian") extra.push(["extra","Секретный результат. Ближе всего из обычных ролей — "+top.r.n+" ("+top.pct+"%)."]);
   if(!sec&&p.sisters&&Math.random()<p.sisters){ extra.push(["extra","Да, мужчинам тоже можно. Сёстры не против."]); found("sisters"); }
   if(!sec&&p.id==="commissar"&&res.user[Q.LETTERS.indexOf("B")]<0){ extra.push(["extra","Особый случай. Тебя бы понял Кайафас Каин — комиссар, который всю жизнь пытался сбежать от войны и каждый раз случайно её выигрывал."]); found("kaine"); }
-  if(!state.view&&krovLast&&krovLast.n) extra.push(["extra","<b>Кровь:</b> "+esc(krovLast.n)+". <b>Служба:</b> "+esc(p.n)+"."]);
+  if(!state.view&&krovLast&&krovLast.n) extra.push(["extra","<b>Кровь:</b> "+esc(krovLast.n)+". <b>Роль:</b> "+esc(p.n)+"."]);
   var cmb=!state.view?comboLine(p.id):null;
   if(cmb){ extra.push(["extra","<i>"+esc(cmb.text)+"</i>"]); track("combo",{pair:cmb.key}); }
   var dream=prior&&Array.isArray(prior.m11)?prior.m11[0]:null;
