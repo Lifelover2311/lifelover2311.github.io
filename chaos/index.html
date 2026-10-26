@@ -155,6 +155,13 @@ h2{font-size:clamp(26px,7vw,36px)}
 .block{margin-top:22px;display:grid;gap:10px}
 .block h3{margin:0;font-family:var(--f-display);font-size:18px;color:var(--gilt)}
 .copied{color:var(--dust);font-size:14px;align-self:center}
+.viewnote{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin:12px 0 0;padding:10px 14px;border-left:2px solid var(--gilt);background:var(--vault);font-size:15px}
+.hist{display:flex;flex-direction:column;gap:6px;margin:18px 0 0}
+.histh{font-size:14px;color:var(--dust);margin:0 0 2px}
+.histi{text-align:left;background:transparent;border:1px solid var(--rule);color:var(--gilt);font:15px/1.3 var(--f-body);padding:7px 12px;cursor:pointer}
+.histi:hover{background:rgba(207,167,82,.1)}
+.cardout img{display:block;width:100%;max-width:360px;border:1px solid var(--rule)}
+.cardout .note{color:var(--dust);font-size:14px;margin:10px 0 0}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 
@@ -178,20 +185,26 @@ h2{font-size:clamp(26px,7vw,36px)}
     <div class="row" id="cMissing"></div>
   </div>
   <button class="btn" id="start" type="button">Начать допрос</button>
+  <div class="hist" id="histIntro" hidden></div>
 </section>
 
 <section id="result" hidden>
+  <div class="viewnote" id="viewNote" hidden><span id="viewText"></span><button class="btn small" id="viewStart" type="button"></button></div>
   <p class="kicker">Протокол допроса № 0417. Заключение</p>
   <article class="res" id="res"></article>
   <div class="block" id="missBox" hidden><span class="stamp">Дело неполное</span><div class="row" id="missBtns"></div></div>
   <div class="block">
-    <h3>Поделиться</h3>
+    <h3 id="shareH">Поделиться</h3>
     <div class="row">
-      <button class="btn small" id="copy" type="button">Поделиться результатом</button>
+      <button class="btn small" id="shareBtn" type="button">Поделиться результатом</button>
+      <button class="btn small ghost" id="copy" type="button">Скопировать</button>
+      <button class="btn small ghost" id="cardBtn" type="button">Картинка для сторис</button>
       <button class="btn small ghost" id="again" type="button">Пройти ещё раз</button>
       <span class="copied" id="copied" role="status"></span>
     </div>
     <textarea id="sharebox" readonly hidden rows="3" style="width:100%;background:var(--vault);color:var(--bone);border:1px solid var(--rule)" aria-label="Текст результата"></textarea>
+    <div class="cardout" id="cardOut" hidden><img id="cardImg" alt="Карточка с результатом теста"><p class="note" id="cardNote"></p></div>
+    <div class="hist" id="histRes" hidden></div>
   </div>
   <div class="block">
     <p style="margin:0;color:var(--dust)">Я сделал эту серию один: вопросы, расчёт, тексты — всё по вечерам после работы. Если тест понравился, можешь поддержать меня, так выйдет следующий.</p>
@@ -283,6 +296,7 @@ function cat(a){ return a?a.g:"U"; }
 function keys(){ return $("keys"); }
 
 async function startQuiz(){
+  CUR=null; clearHash();
   S={qs:C.pickQuestions(POOL,Math.random),idx:0,picks:[],n:0,rec:false,used:[],sure:false,
      susp:{traitor:25,alpharius:22,emperor:20,loyal:12}[bloodKind()]||18,tone:0,shown:-99};
   S.sureAt=2+Math.floor(Math.random()*9); if(S.qs[S.sureAt].tm) S.sureAt++;
@@ -385,9 +399,22 @@ function list(arr){ var ul=mk("ul"); arr.forEach(function(t){ ul.appendChild(mk(
 function split(s){ return s.split(/(?<=[.!?])\s+(?=[А-ЯЁA-Z«])/).map(function(x){return x.replace(/\.$/,"");}).filter(Boolean); }
 function finish(){
   var r=C.score(S.qs,S.picks), R=RESULTS[r.id];
+  // сохранить для следующих тестов серии
+  var ans={}; S.qs.forEach(function(q,i){ var p=S.picks[i]; var pq=POOL[q.slot-1].qs.find(function(x){return x.id===q.id;}); ans[q.id]=p?[pq.a.indexOf(p)]:[]; }); ans._t=Date.now();
+  ls("chaos-answers",ans);
+  ls("chaos-last",{id:r.id,n:R.h,god:r.god||null,lvl:r.god?r.lvl:null,loy:r.loyalty,d:Date.now()});
+  track("done",{res:r.id,god:r.god||r.id,lvl:r.god?r.lvl:-1,loyal:r.loyalty,susp:S.susp,
+    ans:S.qs.map(function(q,i){ var p=S.picks[i]; return q.id+"."+(p?p.g+(p.w||""):"0"); }).join("-")});
+  var res={id:r.id,god:r.god||null,lvl:r.god?r.lvl:null,echo:r.echo||null};
+  saveHist(res);
+  CUR={r:res,view:null}; renderResult();
+}
+/* Арт: art/<результат>.jpg, если нет — art/<бог>.jpg, если и его нет — без картинки */
+function artTries(r){ var t=["art/"+r.id+".jpg"]; if(r.god) t.push("art/"+r.god+".jpg"); return t; }
+function renderResult(){
+  var r=CUR.r, R=RESULTS[r.id], view=CUR.view;
   var box=$("res"); box.innerHTML="";
-  // арт: art/<результат>.jpg, если нет — art/<бог>.jpg, если и его нет — без картинки
-  var img=mk("img","rart"); img.alt=""; img.hidden=true; var tries=["art/"+r.id+".jpg"]; if(r.god) tries.push("art/"+r.god+".jpg");
+  var img=mk("img","rart"); img.alt=""; img.hidden=true; var tries=artTries(r);
   img.onload=function(){ img.hidden=false; }; img.onerror=function(){ tries.shift(); if(tries.length) img.src=tries[0]; else img.remove(); };
   img.src=tries[0]; box.appendChild(img);
   box.appendChild(mk("h2",null,R.h));
@@ -402,31 +429,135 @@ function finish(){
   cols.appendChild(c1); cols.appendChild(c2); box.appendChild(cols);
   if(R.th) box.appendChild(mk("p","think",R.th));
   var inq=mk("div","inq"), ip=mk("p"); ip.appendChild(mk("b",null,"Инквизитор: ")); ip.appendChild(document.createTextNode("«"+R.inq+"»")); inq.appendChild(ip);
-  if(r.id!=="gork") inq.appendChild(mk("p",null,"«"+pick(BRIDGE)+"»"));
+  if(r.id!=="gork"&&!view) inq.appendChild(mk("p",null,"«"+pick(BRIDGE)+"»"));
   box.appendChild(inq);
-  $("missBox").hidden=!fillMissing($("missBtns"));
-  // сохранить для следующих тестов серии
-  var ans={}; S.qs.forEach(function(q,i){ var p=S.picks[i]; var pq=POOL[q.slot-1].qs.find(function(x){return x.id===q.id;}); ans[q.id]=p?[pq.a.indexOf(p)]:[]; }); ans._t=Date.now();
-  ls("chaos-answers",ans);
-  ls("chaos-last",{id:r.id,n:R.h,god:r.god||null,lvl:r.god?r.lvl:null,loy:r.loyalty,d:Date.now()});
-  track("done",{res:r.id,god:r.god||r.id,lvl:r.god?r.lvl:-1,loyal:r.loyalty,susp:S.susp,
-    ans:S.qs.map(function(q,i){ var p=S.picks[i]; return q.id+"."+(p?p.g+(p.w||""):"0"); }).join("-")});
-  S.res=R; show("result");
+  $("missBox").hidden=view?true:!fillMissing($("missBtns"));
+  $("cardOut").hidden=true; $("copied").textContent=""; $("sharebox").hidden=true;
+  renderView(); renderHist(); prepCard();
+  show("result");
   var top=function(){ window.scrollTo(0,0); try{ document.querySelector(".wrap").scrollIntoView({block:"start"}); }catch(e){} };
   top(); requestAnimationFrame(top); setTimeout(top,120);
 }
+
+/* ---------- Ссылка на результат и история ---------- */
+var CUR=null, HKEY="chaos-hist", HMAX=10;
+function enc(r){ return r.id+(r.echo?"-"+r.echo:""); }
+function dec(code){
+  var m=/^([KTNS][0-3]|clean|loyal|gork)(?:-([KTNS]))?$/.exec(code||""); if(!m||!RESULTS[m[1]]) return null;
+  var g=m[1].length===2?m[1][0]:null;
+  return {id:m[1],god:g,lvl:g?+m[1][1]:null,echo:(g&&m[2]&&m[2]!==g)?m[2]:null};
+}
+function baseURL(){ return LIVE?location.href.split("#")[0].split("?")[0]:"https://lifelover2311.github.io/chaos/"; }
+function resultLink(){ return baseURL()+"#r="+enc(CUR.r); }
+function clearHash(){ try{ if(location.hash) history.replaceState(null,"",location.href.split("#")[0]); }catch(e){} }
+function loadHist(){ var h=ls(HKEY); return Array.isArray(h)?h:[]; }
+function saveHist(r){ var h=loadHist(); h.unshift({c:enc(r),d:Date.now(),n:RESULTS[r.id].h}); ls(HKEY,h.slice(0,HMAX)); }
+function fmtD(t){ try{ return new Date(t).toLocaleDateString("ru-RU"); }catch(e){ return ""; } }
+function renderHist(){
+  var h=loadHist().filter(function(e){ return dec(e.c); });
+  ["histIntro","histRes"].forEach(function(id){
+    var el=$(id); if(!h.length){ el.hidden=true; return; }
+    el.hidden=false; el.innerHTML=""; el.appendChild(mk("div","histh","Твои прошлые допросы"));
+    h.forEach(function(e){ var b=mk("button","histi",fmtD(e.d)+" · "+e.n); b.type="button";
+      b.addEventListener("click",function(){ var r=dec(e.c); if(!r) return; CUR={r:r,view:"hist",d:e.d}; track("history_open"); renderResult(); });
+      el.appendChild(b); });
+  });
+  if(h.length) $("start").textContent="Начать допрос снова";
+}
+function renderView(){
+  var v=CUR.view, mine=v!=="friend";
+  $("viewNote").hidden=!v;
+  if(v) $("viewText").textContent=v==="friend"?"Это заключение по делу друга. А какая метка у тебя?":"Твоё заключение от "+fmtD(CUR.d);
+  $("viewStart").textContent=mine?"Пройти заново":"Пройти допрос самому";
+  ["shareBtn","copy","cardBtn","shareH"].forEach(function(id){ $(id).hidden=!mine; });
+  $("again").textContent=mine?"Пройти ещё раз":"Пройти допрос самому";
+}
+function openFromHash(){
+  var m=/[#&]r=([0-9A-Za-z-]+)/.exec(location.hash); if(!m) return;
+  var r=dec(m[1]); if(!r){ clearHash(); if(CUR&&CUR.view==="friend"){ CUR=null; show("intro"); } return; }
+  CUR={r:r,view:"friend"}; track("friend_view"); renderResult();
+}
+
+/* ---------- Карточка для сторис ---------- */
+var STAMP={0:"ПОД НАДЗОРОМ",1:"ПОД НАДЗОРОМ",2:"ЕРЕТИК",3:"ЕРЕТИК",clean:"ОТПУЩЕН",loyal:"ОТПУЩЕН",gork:"НЕ НАШ ПРОФИЛЬ"};
+function makeCard(img){
+  var r=CUR.r, R=RESULTS[r.id];
+  var W=1080,H=1350,c=document.createElement("canvas"); c.width=W; c.height=H; var x=c.getContext("2d");
+  x.fillStyle="#0d0b09"; x.fillRect(0,0,W,H);
+  if(img){ var s=Math.max(W/img.width,880/img.height); x.drawImage(img,(W-img.width*s)/2,0,img.width*s,img.height*s); }
+  var g=x.createLinearGradient(0,0,0,H); g.addColorStop(0,"rgba(13,11,9,.35)"); g.addColorStop(.42,"rgba(13,11,9,.55)"); g.addColorStop(.62,"rgba(13,11,9,.94)"); g.addColorStop(1,"rgba(13,11,9,1)");
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  x.strokeStyle="#8f6e2c"; x.lineWidth=3; x.strokeRect(40,40,W-80,H-80); x.strokeStyle="#3a3027"; x.lineWidth=2; x.strokeRect(56,56,W-112,H-112);
+  x.textAlign="center"; x.fillStyle="#ebe1cc"; x.font='500 28px "IBM Plex Mono", monospace'; x.fillText("ТВОЯ МЕТКА ХАОСА · ПРОТОКОЛ ДОПРОСА",W/2,120);
+  /* штамп */
+  var st=STAMP[r.god?r.lvl:r.id]||"ЗАКЛЮЧЕНИЕ";
+  x.save(); x.font='800 50px "Alegreya SC", Georgia, serif'; var sw=x.measureText(st).width+56;
+  x.translate(W-90-sw/2,250); x.rotate(-0.12); x.strokeStyle="rgba(184,52,44,.92)"; x.lineWidth=7; x.beginPath(); if(x.roundRect) x.roundRect(-sw/2,-44,sw,88,12); else x.rect(-sw/2,-44,sw,88); x.fillStyle="rgba(13,11,9,.78)"; x.fill(); x.stroke();
+  x.fillStyle="rgba(184,52,44,.92)"; x.textBaseline="middle"; x.fillText(st,0,4); x.restore(); x.textBaseline="alphabetic";
+  var fs=96; x.font='800 '+fs+'px "Alegreya SC", Georgia, serif';
+  var lines=wrapLines(x,R.h,W-160); while(lines.length>2&&fs>58){ fs-=6; x.font='800 '+fs+'px "Alegreya SC", Georgia, serif'; lines=wrapLines(x,R.h,W-160); }
+  var y=900+(lines.length-1)*fs*1.02+70;
+  x.font='800 46px "Alegreya SC", Georgia, serif';
+  var ql=wrapLines(x,"«"+R.m+"»",W-220).slice(0,2);
+  var shift=Math.max(0,(y+160+(ql.length-1)*56)-(H-170));
+  x.save(); x.translate(0,-shift);
+  x.fillStyle="#a2967f"; x.font='500 30px "IBM Plex Mono", monospace'; x.fillText(r.god?"ОРДО МАЛЛЕУС · МЕТКА "+GOD_NAME[r.god].toUpperCase():"ОРДО МАЛЛЕУС · ЗАКЛЮЧЕНИЕ",W/2,800);
+  x.fillStyle="#ebe1cc";
+  lines.forEach(function(l,i){ fillSC(x,l,W/2,900+i*(fs*1.02),fs); });
+  x.fillStyle="#cfa752"; x.font='italic 40px "PT Serif", Georgia, serif'; wrapLines(x,R.ep,W-200).slice(0,1).forEach(function(l){ x.fillText(l,W/2,y); });
+  x.font='500 34px "IBM Plex Mono", monospace'; x.fillText(r.echo?"РЯДОМ СЛЫШЕН "+GOD_NAME[r.echo].toUpperCase():(r.god?"СТЕПЕНЬ "+(r.lvl+1)+" ИЗ 4":"ДЕЛО ЗАКРЫТО"),W/2,y+70);
+  x.fillStyle="#ebe1cc";
+  ql.forEach(function(l,i){ fillSC(x,l,W/2,y+160+i*56,46); });
+  x.restore();
+  x.fillStyle="#b8342c"; x.font='500 30px "IBM Plex Mono", monospace'; x.fillText("А какая метка у тебя?",W/2,H-100);
+  return c.toDataURL("image/png");
+}
+/* Alegreya SC: малая «у» похожа на латинскую Y — рисуем её уменьшенной заглавной У */
+function fillSC(x,t,cx,y,fs){
+  var F=function(z){ return '800 '+z+'px "Alegreya SC", Georgia, serif'; }, parts=t.split("у"), w=0, i, al=x.textAlign;
+  for(i=0;i<parts.length;i++){ x.font=F(fs); w+=x.measureText(parts[i]).width; if(i<parts.length-1){ x.font=F(fs*0.76); w+=x.measureText("У").width; } }
+  x.textAlign="left"; var px=cx-w/2;
+  for(i=0;i<parts.length;i++){ x.font=F(fs); x.fillText(parts[i],px,y); px+=x.measureText(parts[i]).width; if(i<parts.length-1){ x.font=F(fs*0.76); x.fillText("У",px,y); px+=x.measureText("У").width; } }
+  x.textAlign=al; x.font=F(fs);
+}
+function wrapLines(x,text,maxW){ var words=text.split(" "),line="",out=[]; words.forEach(function(w){ var t=line?line+" "+w:w; if(x.measureText(t).width>maxW&&line){ out.push(line); line=w; } else line=t; }); out.push(line); return out; }
+var cardFile=null;
+function cardURL(cb){
+  var tries=artTries(CUR.r);
+  var go=function(){ var im=new Image(); im.onload=function(){cb(makeCard(im));}; im.onerror=function(){ tries.shift(); if(tries.length) im.src=tries[0]; else cb(makeCard(null)); }; im.src=tries[0]; };
+  // шрифты для canvas грузим явно: на странице часть начертаний могла ещё не понадобиться
+  try{ Promise.all(['800 50px "Alegreya SC"','500 30px "IBM Plex Mono"','italic 40px "PT Serif"'].map(function(f){ return document.fonts.load(f,"АБВ"); })).then(go,go); }catch(e){ go(); }
+}
+function touch(){ return !!(window.matchMedia&&matchMedia("(pointer: coarse)").matches); }
+function canShareFiles(){ try{ return touch()&&!!navigator.canShare&&navigator.canShare({files:[new File([""],"a.png",{type:"image/png"})]}); }catch(e){ return false; } }
+function prepCard(){ cardFile=null; if(CUR.view==="friend"||!canShareFiles()) return; var r=CUR.r;
+  cardURL(function(url){ if(CUR.r!==r) return; try{ fetch(url).then(function(x){return x.blob();}).then(function(b){ if(CUR.r===r) cardFile=new File([b],"chaos.png",{type:"image/png"}); }).catch(function(){}); }catch(e){} }); }
+$("cardBtn").addEventListener("click",function(){ track("card");
+  cardURL(function(url){ $("cardImg").src=url; $("cardOut").hidden=false; var note=$("cardNote"); note.textContent="";
+    if(/^https?:/.test(location.href)&&!/claude/.test(location.host)){ var a=mk("a","btn small","Скачать картинку"); a.href=url; a.download="chaos.png"; note.appendChild(a); }
+    else note.textContent="Нажми на картинку и удерживай (или правый клик), чтобы сохранить."; }); });
+function shareText(){
+  var R=RESULTS[CUR.r.id];
+  return "Инквизитор допросил меня в тесте «Твоя метка Хаоса». Заключение: «"+R.h+"». А какая метка у тебя? "+resultLink();
+}
+function fallbackBox(t){ var b=$("sharebox"); b.hidden=false; b.value=t; b.focus(); b.select(); $("copied").textContent="Выдели текст и скопируй вручную."; }
+$("copy").addEventListener("click",function(){ track("copy"); var t=shareText();
+  try{ navigator.clipboard.writeText(t).then(function(){ $("copied").textContent="Скопировано. Отправь друзьям."; },function(){ fallbackBox(t); }); }catch(e){ fallbackBox(t); } });
+$("shareBtn").addEventListener("click",function(){
+  track("share",{res:CUR.r.id});
+  var text=shareText(), link=resultLink();
+  var copyLink=function(){ try{ navigator.clipboard.writeText(link).then(function(){ $("copied").textContent="Ссылка на твой результат скопирована."; },function(){ fallbackBox(link); }); }catch(e){ fallbackBox(link); } };
+  if(touch()&&navigator.share){ var data=cardFile?{files:[cardFile],text:text}:{title:"Твоя метка Хаоса",text:text};
+    try{ navigator.share(data).catch(function(err){ if(!err||err.name!=="AbortError") copyLink(); }); }catch(e){ copyLink(); } }
+  else copyLink();
+});
 $("thanksBtn").addEventListener("click",function(){ var o=$("thanksOpts"); o.hidden=!o.hidden; this.setAttribute("aria-expanded",String(!o.hidden)); });
 $("start").addEventListener("click",startQuiz);
 $("again").addEventListener("click",startQuiz);
-$("copy").addEventListener("click",function(){
-  var url=LIVE?location.href.split("#")[0].split("?")[0]:"https://lifelover2311.github.io/chaos/";
-  var t="Инквизитор допросил меня в тесте «Твоя метка Хаоса». Заключение: «"+S.res.h+"». Пройди сам: "+url;
-  function fallback(){ var sb=$("sharebox"); sb.hidden=false; sb.value=t; sb.select(); $("copied").textContent="Выдели и скопируй текст"; }
-  if(navigator.share&&matchMedia("(pointer:coarse)").matches){ try{ navigator.share({title:"Твоя метка Хаоса",text:t}).catch(function(){}); track("share"); return; }catch(e){} }
-  try{ navigator.clipboard.writeText(t).then(function(){ $("copied").textContent="Скопировано"; },fallback); }catch(e){ fallback(); }
-  track("share");
-});
 document.querySelectorAll("[data-goal]").forEach(function(a){ a.addEventListener("click",function(){ track("donate"); track(a.dataset.goal); }); });
+$("viewStart").addEventListener("click",startQuiz);
+renderHist(); openFromHash();
+window.addEventListener("hashchange",function(){ if($("quiz").hidden) openFromHash(); });
 </script>
 
 </body>
