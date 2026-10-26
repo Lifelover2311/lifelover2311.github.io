@@ -490,18 +490,17 @@ function makeCard(img){
   x.textAlign="center"; x.fillStyle="#ebe1cc"; x.font='500 28px "IBM Plex Mono", monospace'; x.fillText("ТВОЯ МЕТКА ХАОСА · ПРОТОКОЛ ДОПРОСА",W/2,120);
   var fs=96; x.font='800 '+fs+'px "Alegreya SC", Georgia, serif';
   var lines=wrapLines(x,R.h,W-160); while(lines.length>2&&fs>58){ fs-=6; x.font='800 '+fs+'px "Alegreya SC", Georgia, serif'; lines=wrapLines(x,R.h,W-160); }
-  var y=900+(lines.length-1)*fs*1.02+70;
+  var y=900+(lines.length-1)*fs*1.02+88;
   x.font='800 46px "Alegreya SC", Georgia, serif';
   var ql=wrapLines(x,"«"+R.m+"»",W-220).slice(0,2);
-  var shift=Math.max(0,(y+160+(ql.length-1)*56)-(H-170));
+  var shift=Math.max(0,(y+100+(ql.length-1)*56)-(H-170));
   x.save(); x.translate(0,-shift);
   x.fillStyle="#a2967f"; x.font='500 30px "IBM Plex Mono", monospace'; x.fillText(r.god?"ОРДО МАЛЛЕУС · МЕТКА "+GOD_NAME[r.god].toUpperCase():"ОРДО МАЛЛЕУС · ЗАКЛЮЧЕНИЕ",W/2,800);
   x.fillStyle="#ebe1cc";
   lines.forEach(function(l,i){ fillSC(x,l,W/2,900+i*(fs*1.02),fs); });
   x.fillStyle="#cfa752"; x.font='italic 40px "PT Serif", Georgia, serif'; wrapLines(x,R.ep,W-200).slice(0,1).forEach(function(l){ x.fillText(l,W/2,y); });
-  x.font='500 34px "IBM Plex Mono", monospace'; x.fillText(r.god?"СТЕПЕНЬ "+(r.lvl+1)+" ИЗ 4":"ДЕЛО ЗАКРЫТО",W/2,y+70);
   x.fillStyle="#ebe1cc";
-  ql.forEach(function(l,i){ fillSC(x,l,W/2,y+160+i*56,46); });
+  ql.forEach(function(l,i){ fillSC(x,l,W/2,y+100+i*56,46); });
   x.restore();
   x.fillStyle="#b8342c"; x.font='500 30px "IBM Plex Mono", monospace'; x.fillText("А какая метка у тебя?",W/2,H-100);
   return c.toDataURL("image/png");
