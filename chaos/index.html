@@ -479,7 +479,6 @@ function openFromHash(){
 }
 
 /* ---------- Карточка для сторис ---------- */
-var STAMP={0:"ПОД НАДЗОРОМ",1:"ПОД НАДЗОРОМ",2:"ЕРЕТИК",3:"ЕРЕТИК",clean:"ОТПУЩЕН",loyal:"ОТПУЩЕН",gork:"НЕ НАШ ПРОФИЛЬ"};
 function makeCard(img){
   var r=CUR.r, R=RESULTS[r.id];
   var W=1080,H=1350,c=document.createElement("canvas"); c.width=W; c.height=H; var x=c.getContext("2d");
@@ -489,11 +488,6 @@ function makeCard(img){
   x.fillStyle=g; x.fillRect(0,0,W,H);
   x.strokeStyle="#8f6e2c"; x.lineWidth=3; x.strokeRect(40,40,W-80,H-80); x.strokeStyle="#3a3027"; x.lineWidth=2; x.strokeRect(56,56,W-112,H-112);
   x.textAlign="center"; x.fillStyle="#ebe1cc"; x.font='500 28px "IBM Plex Mono", monospace'; x.fillText("ТВОЯ МЕТКА ХАОСА · ПРОТОКОЛ ДОПРОСА",W/2,120);
-  /* штамп */
-  var st=STAMP[r.god?r.lvl:r.id]||"ЗАКЛЮЧЕНИЕ";
-  x.save(); x.font='800 50px "Alegreya SC", Georgia, serif'; var sw=x.measureText(st).width+56;
-  x.translate(W-90-sw/2,250); x.rotate(-0.12); x.strokeStyle="rgba(184,52,44,.92)"; x.lineWidth=7; x.beginPath(); if(x.roundRect) x.roundRect(-sw/2,-44,sw,88,12); else x.rect(-sw/2,-44,sw,88); x.fillStyle="rgba(13,11,9,.78)"; x.fill(); x.stroke();
-  x.fillStyle="rgba(184,52,44,.92)"; x.textBaseline="middle"; x.fillText(st,0,4); x.restore(); x.textBaseline="alphabetic";
   var fs=96; x.font='800 '+fs+'px "Alegreya SC", Georgia, serif';
   var lines=wrapLines(x,R.h,W-160); while(lines.length>2&&fs>58){ fs-=6; x.font='800 '+fs+'px "Alegreya SC", Georgia, serif'; lines=wrapLines(x,R.h,W-160); }
   var y=900+(lines.length-1)*fs*1.02+70;
