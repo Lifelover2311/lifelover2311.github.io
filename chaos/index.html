@@ -37,7 +37,7 @@
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-html{background:var(--ink);height:100%}
+html{background:var(--ink);height:100%;overflow-x:clip}
 body{margin:0;color:var(--bone);font-family:var(--f-body);font-size:16px;line-height:1.55;min-height:100%;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
   background:radial-gradient(ellipse at 50% -10%,rgba(184,52,44,.16),transparent 60%),var(--ink)}
@@ -136,8 +136,12 @@ h2{font-size:clamp(26px,7vw,36px)}
 .boot .big{font-size:16px;font-weight:600;letter-spacing:.12em;margin-top:10px}
 
 /* Результат */
-.res{border:1px solid var(--rule);background:var(--vault);padding:22px 18px;display:grid;gap:14px;margin-top:12px}
-.rart{width:100%;max-width:100%;aspect-ratio:1;object-fit:cover;border:1px solid var(--rule)}
+#result{position:relative;display:flow-root}
+#result > .kicker{color:var(--bone);text-shadow:0 1px 8px #000,0 0 3px #000}
+#result > *:not(.rart){position:relative;z-index:1}
+.rart{position:absolute;z-index:0;top:-20px;left:calc(50% - 50vw);width:100vw;height:clamp(440px,96vw,640px);background-size:cover;background-position:center;
+  -webkit-mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.85) 55%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.85) 55%,transparent 100%)}
+.res{position:relative;margin-top:clamp(240px,58vw,330px);background:rgba(20,17,14,.93);border:1px solid #8f6e2c;outline:1px solid var(--rule);outline-offset:4px;padding:22px 18px;display:grid;gap:14px}
 .res .img{font-family:var(--f-it);font-style:italic;color:var(--dust);margin:0}
 .res .ep{margin:0;color:var(--gilt);font-weight:700}
 .res .motto{margin:0;font-family:var(--f-it);font-style:italic}
@@ -190,6 +194,7 @@ h2{font-size:clamp(26px,7vw,36px)}
 
 <section id="result" hidden>
   <div class="viewnote" id="viewNote" hidden><span id="viewText"></span><button class="btn small" id="viewStart" type="button"></button></div>
+  <div class="rart" id="rArt" hidden></div>
   <p class="kicker">Протокол допроса № 0417. Заключение</p>
   <article class="res" id="res"></article>
   <div class="block" id="missBox" hidden><span class="stamp">Дело неполное</span><div class="row" id="missBtns"></div></div>
@@ -415,9 +420,11 @@ function artTries(r){ var t=["art/"+r.id+".jpg"]; if(r.god) t.push("art/"+r.god+
 function renderResult(){
   var r=CUR.r, R=RESULTS[r.id], view=CUR.view;
   var box=$("res"); box.innerHTML="";
-  var img=mk("img","rart"); img.alt=""; img.hidden=true; var tries=artTries(r);
-  img.onload=function(){ img.hidden=false; }; img.onerror=function(){ tries.shift(); if(tries.length) img.src=tries[0]; else img.remove(); };
-  img.src=tries[0]; box.appendChild(img);
+  var ra=$("rArt"); ra.hidden=true; ra.style.backgroundImage=""; box.style.marginTop="";
+  var tries=artTries(r), probe=new Image();
+  probe.onload=function(){ if(CUR&&CUR.r===r){ ra.style.backgroundImage="url('"+probe.src+"')"; ra.hidden=false; } };
+  probe.onerror=function(){ tries.shift(); if(tries.length) probe.src=tries[0]; else box.style.marginTop="12px"; };
+  probe.src=tries[0];
   box.appendChild(mk("h2",null,R.h));
   if(R.img) box.appendChild(mk("p","img",R.img));
   box.appendChild(mk("p","ep",R.ep)); box.appendChild(mk("p","motto","«"+R.m+"»"));
