@@ -499,7 +499,7 @@ function makeCard(img){
   x.fillStyle="#ebe1cc";
   lines.forEach(function(l,i){ fillSC(x,l,W/2,900+i*(fs*1.02),fs); });
   x.fillStyle="#cfa752"; x.font='italic 40px "PT Serif", Georgia, serif'; wrapLines(x,R.ep,W-200).slice(0,1).forEach(function(l){ x.fillText(l,W/2,y); });
-  x.font='500 34px "IBM Plex Mono", monospace'; x.fillText(r.echo?"РЯДОМ СЛЫШЕН "+GOD_NAME[r.echo].toUpperCase():(r.god?"СТЕПЕНЬ "+(r.lvl+1)+" ИЗ 4":"ДЕЛО ЗАКРЫТО"),W/2,y+70);
+  x.font='500 34px "IBM Plex Mono", monospace'; x.fillText(r.god?"СТЕПЕНЬ "+(r.lvl+1)+" ИЗ 4":"ДЕЛО ЗАКРЫТО",W/2,y+70);
   x.fillStyle="#ebe1cc";
   ql.forEach(function(l,i){ fillSC(x,l,W/2,y+160+i*56,46); });
   x.restore();
