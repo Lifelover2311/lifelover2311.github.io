@@ -79,6 +79,6 @@ function score(qs,picks,ctx){
   return r;
 }
 
-Object.assign(CFG,{"bias": {"K": 0.785, "T": 0.569, "N": 0.616, "S": 0.626}, "pen": 1, "clean": 6, "loyal": 0, "depth": {"K": [2.0283, 2.6136, 3.5641], "T": [1.786, 2.388, 3.09], "N": [1.7595, 2.3981, 3.1266], "S": [1.8066, 2.3057, 3.104]}, "gork": 3, "near": 0.06}); /* подобрано симуляцией 26.10.2026 */
+Object.assign(CFG,{"bias": {"K": 0.7973, "T": 0.5898, "N": 0.8061, "S": 1.5479}, "pen": 1, "clean": 6.3934, "loyal": 0, "depth": {"K": [2.2273, 2.8014, 3.9152], "T": [1.9612, 2.5596, 3.3944], "N": [1.9321, 2.5704, 3.4346], "S": [1.9839, 2.4714, 3.4098]}, "gork": 3, "near": 0.06}); /* подобрано симуляцией 26.10.2026 по Метрике (248 результатов): меньше Кхорна и Тзинча, больше Слаанеш/«Чист»/«Верен», глубже Метка и Зов */
 root.CHAOS={GODS:GODS,CFG:CFG,LINK:LINK,pickQuestions:pickQuestions,score:score,shuffle:shuffle};
 })(typeof window!=="undefined"?window:globalThis);
