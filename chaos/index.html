@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="description" content="Инквизитор вызвал тебя на беседу. 14 вопросов о желаниях, страхах и радостях — и метка Хаоса, которую ты носишь. Часть третья серии «Кровь помнит».">
+<meta property="og:title" content="Твоя метка Хаоса">
+<meta property="og:description" content="Абсолютно верных не бывает. Допрос инквизитора и твоя метка Хаоса.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://lifelover2311.github.io/chaos/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<!-- Yandex.Metrika counter -->
+<script>(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,'script','https://mc.yandex.ru/metrika/tag.js?id=113669793','ym');ym(113669793,'init',{ssr:true,clickmap:true,referrer:document.referrer,url:location.href,accurateTrackBounce:true,trackLinks:true});</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/113669793" style="position:absolute;left:-9999px" alt=""></div></noscript>
+<title>Твоя метка Хаоса</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+SC:wght@700;800&family=IBM+Plex+Mono:wght@400;500;600&family=PT+Serif:ital@1&display=swap">
+<style>
+/* Серия «Кровь помнит». Вступление — тёмный архив, как в тестах 1–2.
+   Допрос: сначала обычный чат, после приказа сервитору — экран когитатора механикус:
+   железная рамка, красная полоса Механикус с шестернёй, зелёный люминофор, развёртка, адреса строк в hex. */
+:root{
+  --ink:#0d0b09; --vault:#1a1612; --vault-2:#231e18; --rule:#3a3027;
+  --bone:#ebe1cc; --dust:#a2967f; --gilt:#cfa752; --seal:#b8342c; --on-gilt:#1a140a;
+  --iron:#1c1e1b; --iron-2:#2a2d28; --iron-edge:#454a41; --mars:#8e1b14; --mars-hi:#c4352a;
+  --phos:#8ff0a4; --phos-dim:#3f8a55; --phos-bg:#020c06; --phos-glow:rgba(120,255,150,.35);
+  --f-display:"Alegreya SC",Georgia,serif;
+  --f-body:"Alegreya Sans","Segoe UI",Roboto,Arial,sans-serif;
+  --f-it:"PT Serif",Georgia,serif;
+  --f-mono:"IBM Plex Mono","Courier New",ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--ink);height:100%}
+body{margin:0;color:var(--bone);font-family:var(--f-body);font-size:16px;line-height:1.55;min-height:100%;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background:radial-gradient(ellipse at 50% -10%,rgba(184,52,44,.16),transparent 60%),var(--ink)}
+button{font:inherit;color:inherit}
+a{color:var(--gilt)}
+.wrap{max-width:640px;margin:0 auto;padding-block:28px 64px}
+.kicker{font-family:var(--f-it);font-style:italic;color:var(--dust);font-size:15px}
+h1,h2{font-family:var(--f-display);font-weight:800;text-wrap:balance;margin:0;line-height:1.1}
+h1{font-size:clamp(36px,9.5vw,54px)}
+h2{font-size:clamp(26px,7vw,36px)}
+.sub{font-family:var(--f-it);font-style:italic;color:var(--gilt);font-size:19px;margin:6px 0 0}
+.scene{margin:22px 0 0;display:grid;gap:12px;max-width:60ch}
+.scene p{margin:0}
+.scene .first{font-size:18px}
+.scene .stage{color:var(--dust)}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 22px;border-radius:3px;border:1px solid var(--gilt);
+  background:var(--gilt);color:var(--on-gilt);font-weight:700;cursor:pointer;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--gilt)}
+.btn.small{min-height:40px;padding:8px 14px;font-size:15px}
+.btn:focus-visible,.ans:focus-visible{outline:2px solid var(--phos);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:10px}
+
+/* Карточка дела */
+.case{margin:24px 0;border:1px solid var(--rule);background:var(--vault);padding:16px 18px;display:grid;gap:10px}
+.case h3{margin:0;font-family:var(--f-display);font-size:18px;color:var(--gilt)}
+.case dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0}
+.case dt{color:var(--dust)}
+.case dd{margin:0;font-weight:500;min-width:0}
+.case dd.none{color:var(--dust);font-style:italic}
+.stamp{justify-self:start;font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--seal);border:2px solid var(--seal);padding:3px 8px;transform:rotate(-2deg)}
+
+/* ===== Экран допроса: занимает весь экран, листается только лента ===== */
+#quiz{position:fixed;inset:0;z-index:5;display:flex;flex-direction:column;background:var(--ink);
+  padding:calc(env(safe-area-inset-top,0px) + 10px) max(10px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 10px) max(10px,env(safe-area-inset-left,0px))}
+.term{flex:1;min-height:0;display:flex;flex-direction:column;max-width:680px;width:100%;margin:0 auto;gap:10px}
+.bar{display:none}
+.screen{flex:1;min-height:0;position:relative;display:flex;flex-direction:column;border:1px solid var(--rule);background:var(--vault);border-radius:6px;overflow:hidden}
+#log{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:10px;padding:14px 12px;scroll-behavior:smooth}
+#log::before{content:"";margin-top:auto}
+.msg{max-width:88%;padding:10px 14px;border-radius:14px 14px 14px 4px;background:var(--vault-2);border:1px solid var(--rule);align-self:flex-start}
+.msg.me{align-self:flex-end;border-radius:14px 14px 4px 14px;background:#2b2418;border-color:#4a3c27}
+.msg .who{display:block;font-size:12px;color:var(--dust);margin-bottom:2px}
+.msg.stage{background:none;border:0;padding:0;color:var(--dust);font-family:var(--f-it);font-style:italic;max-width:100%;font-size:15px}
+.cur{display:inline-block;width:.55em;height:1.05em;vertical-align:-.15em;background:currentColor;margin-left:2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.keys{flex:none;max-height:48%;overflow-y:auto;display:flex;flex-direction:column;gap:7px;padding-top:2px}
+.keys > *{flex:none}
+.keys:empty{display:none}
+.ans{width:100%;text-align:left;min-height:46px;padding:10px 14px;border-radius:6px;border:1px solid var(--rule);background:var(--vault);cursor:pointer;line-height:1.35}
+.ans:hover{border-color:var(--gilt)}
+.ans.solid{background:var(--gilt);color:var(--on-gilt);border-color:var(--gilt);font-weight:700;text-align:center}
+.timer{height:5px;background:var(--rule);border-radius:3px;overflow:hidden}
+.timer i{display:block;height:100%;background:var(--seal);width:100%}
+
+/* ===== Режим записи: когитатор Механикус ===== */
+.rec .term{gap:0;background:linear-gradient(180deg,var(--iron-2),var(--iron));border:1px solid var(--iron-edge);border-radius:10px;padding:0 10px 10px;
+  box-shadow:0 0 0 3px #0a0b09,0 18px 40px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.06)}
+.rec .bar{display:flex;align-items:center;gap:10px;margin:0 -10px 10px;padding:7px 12px;background:linear-gradient(180deg,var(--mars-hi),var(--mars));border-radius:9px 9px 0 0;
+  color:#f6d9c9;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.06em;border-bottom:2px solid #4d0d09}
+.bar svg{flex:none;width:22px;height:22px}
+.bar .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .live{display:flex;align-items:center;gap:6px;flex:none}
+.bar .live i{width:8px;height:8px;border-radius:50%;background:#ffb3a3;box-shadow:0 0 8px #ff6a50;animation:blink 1.4s steps(1) infinite}
+.rec .screen{background:var(--phos-bg);border:2px solid #050605;border-radius:14px/18px;box-shadow:inset 0 0 70px rgba(70,255,120,.08),inset 0 0 0 1px rgba(143,240,164,.12)}
+.rec .screen::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:2;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55) 100%)}
+.rec .screen::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:2;background:rgba(143,240,164,.025);animation:flick 5s infinite}
+@keyframes flick{0%,96%,100%{opacity:1}97%{opacity:.4}98%{opacity:1}99%{opacity:.6}}
+.rec .rehead{display:block}
+.rehead{display:none;flex:none;font-family:var(--f-mono);font-size:11.5px;line-height:1.5;color:var(--phos-dim);padding:10px 12px 8px;border-bottom:1px dashed rgba(143,240,164,.25);text-shadow:0 0 6px var(--phos-glow)}
+.rehead b{color:var(--phos);font-weight:600}
+.rec #log{gap:3px;font-family:var(--f-mono);font-size:13.5px;line-height:1.55;color:var(--phos);text-shadow:0 0 6px var(--phos-glow);padding:10px 12px 14px}
+.rec .msg,.rec .msg.me,.rec .msg.stage{max-width:none;align-self:stretch;background:none;border:0;border-radius:0;padding:0 0 0 52px;position:relative;font-family:var(--f-mono);font-style:normal;font-size:inherit;color:inherit}
+.rec .msg::before{content:attr(data-n);position:absolute;left:0;color:var(--phos-dim)}
+.rec .msg .who{display:inline;font-size:inherit;color:var(--phos-dim);margin:0 6px 0 0}
+.rec .msg.me{color:#d6ffdf}
+.rec .msg.note,.rec .msg.stage{color:var(--phos-dim)}
+.rec .msg.susp{color:#f0c27a;opacity:.85}
+.rec .msg.sys{color:#f0c27a;text-shadow:0 0 6px rgba(240,194,122,.4)}
+.rec .keys{padding-top:10px}
+.rec .ans{min-height:40px;padding:8px 12px;font-family:var(--f-mono);font-size:13px;background:linear-gradient(180deg,#232622,#161815);border:1px solid #3c4238;border-bottom-width:3px;color:var(--phos);text-shadow:0 0 5px var(--phos-glow);border-radius:4px}
+.rec .ans::before{content:"⟩ ";color:var(--phos-dim)}
+.rec .ans:hover{border-color:var(--phos-dim)}
+.rec .ans:active{transform:translateY(2px);border-bottom-width:1px}
+.rec .ans.solid{background:linear-gradient(180deg,var(--mars-hi),var(--mars));color:#fbe3d6;text-shadow:none;border-color:#4d0d09;text-align:center}
+.rec .ans.solid::before{content:none}
+.rec .timer{background:#0b1a10;margin-top:10px}
+.rec .timer i{background:var(--phos);box-shadow:0 0 8px var(--phos)}
+
+/* Включение записи */
+.boot{position:fixed;inset:0;z-index:30;background:#000;display:flex;flex-direction:column;justify-content:center;gap:4px;
+  padding:24px max(24px,env(safe-area-inset-left,0px));font-family:var(--f-mono);font-size:13px;color:var(--phos);text-shadow:0 0 8px var(--phos-glow);overflow:hidden}
+.boot div{white-space:pre-wrap;word-break:break-all}
+.boot .dim{color:var(--phos-dim)}
+.boot .big{font-size:16px;font-weight:600;letter-spacing:.12em;margin-top:10px}
+
+/* Результат */
+.res{border:1px solid var(--rule);background:var(--vault);padding:22px 18px;display:grid;gap:14px;margin-top:12px}
+.rart{width:100%;max-width:100%;aspect-ratio:1;object-fit:cover;border:1px solid var(--rule)}
+.res .img{font-family:var(--f-it);font-style:italic;color:var(--dust);margin:0}
+.res .ep{margin:0;color:var(--gilt);font-weight:700}
+.res .motto{margin:0;font-family:var(--f-it);font-style:italic}
+.res p{margin:0}
+.res .echo{color:var(--dust);font-style:italic}
+.res blockquote{margin:0;padding-left:14px;border-left:2px solid var(--gilt);color:var(--dust)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:520px){.cols{grid-template-columns:1fr}}
+.cols h3{font-family:var(--f-display);font-size:17px;color:var(--dust);margin:0 0 6px}
+.cols ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.think{font-family:var(--f-it);font-style:italic}
+.inq{border-top:1px solid var(--rule);padding-top:12px;display:grid;gap:10px}
+.inq h3{margin:0;font-family:var(--f-display);font-size:17px;color:var(--dust)}
+.bridge{font-family:var(--f-mono);font-size:14px;color:var(--phos);background:var(--phos-bg);padding:10px 12px;border-radius:4px;text-shadow:0 0 6px var(--phos-glow)}
+.block{margin-top:22px;display:grid;gap:10px}
+.block h3{margin:0;font-family:var(--f-display);font-size:18px;color:var(--gilt)}
+.copied{color:var(--dust);font-size:14px;align-self:center}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+<section id="intro">
+  <p class="kicker">Серия «Кровь помнит», часть третья</p>
+  <h1>Твоя метка Хаоса</h1>
+  <p class="sub">Абсолютно верных не бывает</p>
+  <div class="scene">
+    <p class="first">После анкеты Администратума инквизиция закономерно вызвала тебя на допрос.</p>
+    <p class="stage">Комната без окон. Стол, два стула и лампа, повёрнутая к тебе. Напротив сидит инквизитор и листает твоё личное дело. В углу, подключённый проводами к когитатору, неподвижно ждёт сервитор-стенографист. Дверь за спиной закрылась.</p>
+    <p>Будет четырнадцать вопросов о том, чего ты хочешь, чего боишься и чему радуешься. Отвечай как есть: правильных ответов здесь нет.</p>
+  </div>
+  <div class="case">
+    <h3>Личное дело</h3>
+    <dl><dt>Кровь примарха</dt><dd id="cBlood"></dd><dt>Роль</dt><dd id="cRole"></dd></dl>
+    <span class="stamp" id="cStamp" hidden>Дело неполное</span>
+    <div class="row" id="cMissing"></div>
+  </div>
+  <button class="btn" id="start" type="button">Начать допрос</button>
+</section>
+
+<section id="result" hidden>
+  <p class="kicker">Протокол допроса № 0417. Заключение</p>
+  <article class="res" id="res"></article>
+  <div class="block" id="missBox" hidden><span class="stamp">Дело неполное</span><div class="row" id="missBtns"></div></div>
+  <div class="block">
+    <h3>Поделиться</h3>
+    <div class="row">
+      <button class="btn small" id="copy" type="button">Скопировать результат</button>
+      <button class="btn small ghost" id="again" type="button">Пройти ещё раз</button>
+      <span class="copied" id="copied" role="status"></span>
+    </div>
+    <textarea id="sharebox" readonly hidden rows="3" style="width:100%;background:var(--vault);color:var(--bone);border:1px solid var(--rule)" aria-label="Текст результата"></textarea>
+  </div>
+  <div class="block">
+    <p style="margin:0;color:var(--dust)">Я сделал эту серию один: вопросы, расчёт, тексты — всё по вечерам после работы. Если тест понравился, можешь поддержать меня, так выйдет следующий.</p>
+    <div class="row">
+      <a class="btn small ghost" href="https://boosty.to/lifelover2311/donate" target="_blank" rel="noopener" data-goal="donate_boosty">Boosty</a>
+      <a class="btn small ghost" href="https://yoomoney.ru/to/4100119662398407" target="_blank" rel="noopener" data-goal="donate_yoomoney">ЮMoney (карта любого банка)</a>
+    </div>
+  </div>
+</section>
+</div>
+
+<section id="quiz" hidden aria-live="polite">
+  <div class="term">
+    <div class="bar" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#f6d9c9" stroke-width="1.6"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/><circle cx="12" cy="12" r="7.6" stroke-dasharray="2.4 1.6"/></svg>
+      <span class="t">КОГИТАТОР · ОРДО МАЛЛЕУС · ДОПРОС</span>
+      <span class="live"><i></i>ЗАПИСЬ</span>
+    </div>
+    <div class="screen">
+      <div class="rehead" id="rehead"></div>
+      <div id="log"></div>
+    </div>
+    <div class="timer" id="timer" hidden><i id="timerBar"></i></div>
+    <div class="keys" id="keys"></div>
+  </div>
+</section>
+
+<script src="data.js"></script>
+<script src="engine.js"></script>
+<script>
+"use strict";
+var $=function(id){return document.getElementById(id);};
+var C=window.CHAOS, reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+var LIVE=/github\.io$/.test(location.hostname);
+var KROV="https://lifelover2311.github.io/krov-primarhov/", IMP="https://lifelover2311.github.io/imperium/";
+function ls(k,v){ try{ if(v===undefined) return JSON.parse(localStorage.getItem(k)||"null"); localStorage.setItem(k,JSON.stringify(v)); }catch(e){ return null; } }
+function track(n,pr){ try{ if(window.ym&&LIVE){ ym(113669793,"reachGoal","chaos_"+n); if(pr) ym(113669793,"params",{chaos:pr}); } }catch(e){} }
+function mk(tag,cls,txt){ var e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; }
+function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+function show(id){ ["intro","result"].forEach(function(s){ $(s).hidden=(s!==id); }); $("quiz").hidden=(id!=="quiz"); document.body.style.overflow=id==="quiz"?"hidden":""; window.scrollTo(0,0); }
+function wait(ms){ return new Promise(function(r){ setTimeout(r,reduce?Math.min(ms,120):ms); }); }
+
+/* ---------- Досье из тестов 1–2 ---------- */
+var blood=ls("krov-primarhov-last"), role=ls("imperium-last");
+try{ var sp=new URLSearchParams(location.search); if(sp.get("k")&&!blood) blood={id:sp.get("k"),n:""}; }catch(e){}
+function bloodKind(){ if(!blood||!blood.id) return null; if(blood.id==="alpharius"||blood.id==="emperor") return blood.id; return TRAITORS.indexOf(blood.id)>=0?"traitor":"loyal"; }
+function fillMissing(box){
+  box.innerHTML="";
+  if(!blood||!blood.id){ var a=mk("a","btn small ghost","Пройти «Кровь примархов»"); a.href=KROV; box.appendChild(a); }
+  if(!role||!role.id){ var b=mk("a","btn small ghost","Пройти «Твою роль в Империуме»"); b.href=IMP; box.appendChild(b); }
+  return box.children.length>0;
+}
+(function(){
+  var b=$("cBlood"), r=$("cRole");
+  b.textContent=blood&&blood.n?blood.n:"не установлена"; b.classList.toggle("none",!(blood&&blood.n));
+  r.textContent=role&&role.n?role.n:"не назначена"; r.classList.toggle("none",!(role&&role.n));
+  $("cStamp").hidden=!fillMissing($("cMissing"));
+})();
+
+/* ---------- Лента: всегда держим низ в поле зрения ---------- */
+var S, log=$("log");
+function down(){ log.scrollTop=log.scrollHeight; }
+function hex(n){ return "0x"+n.toString(16).toUpperCase().padStart(3,"0"); }
+function whoLabel(who){ return S.rec?(who==="me"?"ДОПР›":who==="srv"?"СЕРВ›":"ИНКВ›"):(who==="me"?"Вы":who==="srv"?"Сервитор":"Инквизитор"); }
+function line(who,text,cls){
+  var m=mk("div","msg"+(who==="me"?" me":"")+(cls?" "+cls:""));
+  S.n++; m.dataset.n=hex(S.n); m.dataset.who=who||"";
+  if(who) m.appendChild(mk("span","who",whoLabel(who)));
+  var t=mk("span","tx",text); m.appendChild(t);
+  log.appendChild(m); down(); return m;
+}
+/* Текст набирается по буквам, с мигающим курсором */
+async function type(who,text,cls,speed){
+  var m=line(who,"",cls), t=m.querySelector(".tx"), cur=mk("span","cur"); m.appendChild(cur);
+  if(reduce){ t.textContent=text; cur.remove(); down(); return m; }
+  var sp=speed||(S.rec?16:22);
+  for(var i=0;i<text.length;i++){ t.textContent+=text[i]; if(i%3===0) down(); await new Promise(function(r){ setTimeout(r,/[.,!?…]/.test(text[i])?sp*6:sp); }); }
+  cur.remove(); down(); return m;
+}
+async function say(text,pause){ await wait(pause==null?700:pause); return type("inq",text); }
+function note(text){ return line(null,text,"note"); }
+function tone(){ var t=S.susp>65?2:S.susp>35?1:0; if(t<S.tone&&S.susp>(S.tone===2?57:27)) t=S.tone; return t; }
+function react(kind){ var T=TONE[S.tone][kind], free=T.filter(function(x){return S.used.indexOf(x)<0;}); var x=pick(free.length?free:T); S.used.push(x); return x; }
+function suspNote(force){ if(!S.rec) return; var v=Math.round(S.susp); if(!force&&Math.abs(v-S.shown)<6) return; var ar=S.shown<0?"":v>S.shown?" ▲":v<S.shown?" ▼":""; S.shown=v; line(null,"[уровень подозрения: "+v+"%"+ar+"]","susp"); }
+function cat(a){ return a?a.g:"U"; }
+function keys(){ return $("keys"); }
+
+async function startQuiz(){
+  S={qs:C.pickQuestions(POOL,Math.random),idx:0,picks:[],n:0,rec:false,used:[],sure:false,
+     susp:{traitor:25,alpharius:22,emperor:20,loyal:12}[bloodKind()]||18,tone:0,shown:-99};
+  S.sureAt=2+Math.floor(Math.random()*9); if(S.qs[S.sureAt].tm) S.sureAt++;
+  S.cut=Math.random()<.7?3+Math.floor(Math.random()*9):-1;       // «дух машины отказывается» — не больше раза
+  S.glitch=Math.random()<.3?4+Math.floor(Math.random()*8):-1; if(S.glitch===S.cut) S.glitch=-1;
+  log.innerHTML=""; keys().innerHTML=""; $("quiz").classList.remove("rec"); $("rehead").innerHTML="";
+  show("quiz"); track("start");
+  var k=bloodKind();
+  await say(GREET,500);
+  if(role&&role.id&&ROLE_LINE[role.id]) await say(ROLE_LINE[role.id],1600);
+  if(!k&&!(role&&role.id)) await say(EMPTY_LINE.none,1600);
+  else if(!k) await say(EMPTY_LINE.noBlood,1600);
+  else if(!(role&&role.id)) await say(EMPTY_LINE.noRole,1600);
+  if(k) await say(BLOOD_LINE[k],1600);
+  await say(RULES,1600);
+  await wait(900); ask();
+}
+async function ask(){
+  var q=S.qs[S.idx];
+  await say(q.t,S.idx===0?1200:900);
+  await wait(400); renderAnswers(q);
+}
+function renderAnswers(q,noTimer){
+  var box=keys(); box.innerHTML="";
+  q.a.forEach(function(a){ var b=mk("button","ans",a.t); b.type="button"; b.addEventListener("click",function(){ answer(a); }); box.appendChild(b); });
+  box.scrollTop=0; S.t0=Date.now(); down();
+  if(q.tm&&!noTimer){
+    $("timer").hidden=false; var bar=$("timerBar"); bar.style.transition="none"; bar.style.width="100%"; void bar.offsetWidth;
+    bar.style.transition="width 12s linear"; bar.style.width="0%";
+    S.timer=setTimeout(function(){ answer(null); },12000);
+  }
+}
+async function answer(a){
+  clearTimeout(S.timer); $("timer").hidden=true; keys().innerHTML="";
+  var q=S.qs[S.idx], dt=(Date.now()-S.t0)/1000;
+  if(S.changing){ S.changing=false; S.picks[S.idx]=a; line("me",a.t); note("[ответ изменён]"); await say(TONE[S.tone].change,500); return next(); }
+  S.picks[S.idx]=a;
+  line("me",a?a.t:"…");
+  if(S.rec){ if(a&&dt>7) note("[пауза "+Math.round(dt)+" сек]"); else if(a&&dt<2.5&&Math.random()<.3) note("[ответ дан за "+Math.max(1,Math.round(dt))+" сек]"); else if(!a) note("[ответа нет]"); }
+  // подозрение: от уклончивых ответов и пауз, не от богов
+  var g=cat(a);
+  // фон: допрос сам по себе накаляется (+0,5…+3 за ответ), плюс конкретные поводы
+  S.susp+= .5+Math.random()*2.5;
+  S.susp+= !a?8 : g==="U"?12 : g==="L"?-3 : g==="C"?1 : 0;   // «слишком чисто» тоже настораживает
+  if(a&&dt<2) S.susp+=3; else if(a&&dt>9) S.susp+=4;           // заученно быстро или долгая пауза
+  var disc=false;
+  if(q.slot===9||q.slot===11){ var x=cat(S.picks[S.qs.findIndex(function(z){return z.slot===(q.slot===9?4:7);})]), gods=C.GODS;
+    disc=x==="U"||g==="U"||(gods.indexOf(x)>=0&&gods.indexOf(g)>=0&&x!==g); if(disc) S.susp+=6; else if(x!==g) S.susp+=2; }
+  S.susp=Math.max(5,Math.min(80,S.susp));
+  if(S.idx===0) return startRecording();
+  var nt=tone(); suspNote(nt!==S.tone);
+  if(nt!==S.tone){ if(nt>S.tone){ await wait(500); line(null,MECH.tone,"sys"); await say(TONE_UP[nt],800); } else await say(TONE_DOWN); S.tone=nt; }
+  else if(disc) await say(TONE[S.tone].check);
+  else if(a&&dt>9&&S.tone>0&&!S.slowSaid){ S.slowSaid=true; await say(SLOW); }
+  else if(!a) await say(react("miss"));
+  else if(g==="U") await say(react("evade"));
+  else if(S.idx===S.cut){ await wait(700); var m=line("inq","",null), c=mk("span","cur"); m.appendChild(c); await wait(1400); m.remove(); line(null,MECH.cut,"sys"); }
+  else if(S.idx===S.glitch){ await wait(500); line(null,MECH.glitch,"sys"); }
+  else if(Math.random()<.65) await say(react("react"));
+  if(S.idx===S.sureAt&&a&&!S.sure){ S.sure=true; await say("Вы ответили: «"+a.t+"». "+SURE,600); return sure(q); }
+  next();
+}
+function sure(q){
+  var box=keys(); box.innerHTML="";
+  var keep=mk("button","ans solid","Да"), ch=mk("button","ans","Изменить ответ"); keep.type=ch.type="button";
+  keep.addEventListener("click",async function(){ box.innerHTML=""; line("me","Да."); await say(TONE[S.tone].keep,500); next(); });
+  ch.addEventListener("click",function(){ box.innerHTML=""; S.changing=true; renderAnswers(q,true); });
+  box.appendChild(keep); box.appendChild(ch); down();
+}
+/* Приказ сервитору и включение когитатора */
+async function startRecording(){
+  await say(START_REC,900);
+  await wait(1000); await type(null,SERVITOR_ACK,"stage",28);
+  await wait(1100);
+  var boot=mk("div","boot"); document.body.appendChild(boot);
+  function bl(t,c){ var d=mk("div",c,t); boot.appendChild(d); return d; }
+  var bits=["01000011 01001111 01000111","10110010 00011101 11100001","+++ ДУХ МАШИНЫ ПРОБУЖДАЕТСЯ +++","01010000 01010010 01001111 01010100"];
+  for(var i=0;i<bits.length;i++){ bl(bits[i],i===2?"":"dim"); await wait(260); }
+  var d=bl("",""); for(var j=0;j<MECH.lit.length;j++){ d.textContent+=MECH.lit[j]; if(!reduce) await new Promise(function(r){setTimeout(r,24);}); }
+  if(reduce) d.textContent=MECH.lit;
+  await wait(500); bl("+++ ПРОТОКОЛ НАЧАТ +++","big"); await wait(1100);
+  S.rec=true; $("quiz").classList.add("rec");
+  $("rehead").innerHTML="<b>+++ "+MECH.head.toUpperCase()+" +++</b><br>СТЕНОГРАФИСТ: СЕРВИТОР 7-ТАУ";
+  // всё сказанное до записи попадает в протокол
+  log.querySelectorAll(".msg").forEach(function(m){ var w=m.querySelector(".who"); if(w) w.textContent=whoLabel(m.dataset.who); });
+  boot.remove(); down(); suspNote(true);
+  await wait(600); next();
+}
+async function next(){
+  S.idx++;
+  if(S.idx<S.qs.length) return ask();
+  await say(TONE[S.tone].fin,900); await wait(800); line(null,MECH.end,"sys");
+  await wait(600);
+  var box=keys(); var b=mk("button","ans solid","Получить заключение"); b.type="button"; b.addEventListener("click",finish); box.appendChild(b); down();
+}
+
+/* ---------- Результат ---------- */
+function list(arr){ var ul=mk("ul"); arr.forEach(function(t){ ul.appendChild(mk("li",null,t)); }); return ul; }
+function split(s){ return s.split(/(?<=[.!?])\s+(?=[А-ЯЁA-Z«])/).map(function(x){return x.replace(/\.$/,"");}).filter(Boolean); }
+function finish(){
+  var r=C.score(S.qs,S.picks), R=RESULTS[r.id];
+  var box=$("res"); box.innerHTML="";
+  // арт: art/<результат>.jpg, если нет — art/<бог>.jpg, если и его нет — без картинки
+  var img=mk("img","rart"); img.alt=""; img.hidden=true; var tries=["art/"+r.id+".jpg"]; if(r.god) tries.push("art/"+r.god+".jpg");
+  img.onload=function(){ img.hidden=false; }; img.onerror=function(){ tries.shift(); if(tries.length) img.src=tries[0]; else img.remove(); };
+  img.src=tries[0]; box.appendChild(img);
+  box.appendChild(mk("h2",null,R.h));
+  if(R.img) box.appendChild(mk("p","img",R.img));
+  box.appendChild(mk("p","ep",R.ep)); box.appendChild(mk("p","motto","«"+R.m+"»"));
+  box.appendChild(mk("p",null,R.d));
+  if(r.echo) box.appendChild(mk("p","echo",echoLine(r.god,r.echo)));
+  if(R.q) box.appendChild(mk("blockquote",null,R.q));
+  var cols=mk("div","cols"), c1=mk("div"), c2=mk("div");
+  c1.appendChild(mk("h3",null,"Сильные стороны")); c1.appendChild(list(split(R.s)));
+  c2.appendChild(mk("h3",null,"Слабые стороны")); c2.appendChild(list(split(R.w)));
+  cols.appendChild(c1); cols.appendChild(c2); box.appendChild(cols);
+  if(R.th) box.appendChild(mk("p","think",R.th));
+  var inq=mk("div","inq"), ip=mk("p"); ip.appendChild(mk("b",null,"Инквизитор: ")); ip.appendChild(document.createTextNode("«"+R.inq+"»")); inq.appendChild(ip);
+  if(r.id!=="gork") inq.appendChild(mk("p",null,"«"+pick(BRIDGE)+"»"));
+  box.appendChild(inq);
+  $("missBox").hidden=!fillMissing($("missBtns"));
+  // сохранить для следующих тестов серии
+  var ans={}; S.qs.forEach(function(q,i){ var p=S.picks[i]; var pq=POOL[q.slot-1].qs.find(function(x){return x.id===q.id;}); ans[q.id]=p?[pq.a.indexOf(p)]:[]; }); ans._t=Date.now();
+  ls("chaos-answers",ans);
+  ls("chaos-last",{id:r.id,n:R.h,god:r.god||null,lvl:r.god?r.lvl:null,loy:r.loyalty,d:Date.now()});
+  track("done",{res:r.id,god:r.god||r.id,lvl:r.god?r.lvl:-1,loyal:r.loyalty,susp:S.susp,
+    ans:S.qs.map(function(q,i){ var p=S.picks[i]; return q.id+"."+(p?p.g+(p.w||""):"0"); }).join("-")});
+  S.res=R; show("result");
+  var top=function(){ window.scrollTo(0,0); try{ document.querySelector(".wrap").scrollIntoView({block:"start"}); }catch(e){} };
+  top(); requestAnimationFrame(top); setTimeout(top,120);
+}
+$("start").addEventListener("click",startQuiz);
+$("again").addEventListener("click",startQuiz);
+$("copy").addEventListener("click",function(){
+  var url=LIVE?location.href.split("#")[0].split("?")[0]:"https://lifelover2311.github.io/chaos/";
+  var t="Инквизитор допросил меня в тесте «Твоя метка Хаоса». Заключение: «"+S.res.h+"». Пройди сам: "+url;
+  function fallback(){ var sb=$("sharebox"); sb.hidden=false; sb.value=t; sb.select(); $("copied").textContent="Выдели и скопируй текст"; }
+  try{ navigator.clipboard.writeText(t).then(function(){ $("copied").textContent="Скопировано"; },fallback); }catch(e){ fallback(); }
+  track("share");
+});
+document.querySelectorAll("[data-goal]").forEach(function(a){ a.addEventListener("click",function(){ track("donate"); track(a.dataset.goal); }); });
+</script>
+
+</body>
+</html>
