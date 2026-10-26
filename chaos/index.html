@@ -49,6 +49,7 @@ h1,h2{font-family:var(--f-display);font-weight:800;text-wrap:balance;margin:0;li
 h1{font-size:clamp(36px,9.5vw,54px)}
 h2{font-size:clamp(26px,7vw,36px)}
 .sub{font-family:var(--f-it);font-style:italic;color:var(--gilt);font-size:19px;margin:6px 0 0}
+.cover{display:block;width:100%;max-width:100%;height:auto;aspect-ratio:1200/630;object-fit:cover;border:1px solid var(--rule);margin:0 0 18px}
 .scene{margin:22px 0 0;display:grid;gap:12px;max-width:60ch}
 .scene p{margin:0}
 .scene .first{font-size:18px}
@@ -161,6 +162,7 @@ h2{font-size:clamp(26px,7vw,36px)}
 <body>
 <div class="wrap">
 <section id="intro">
+  <img class="cover" src="og.jpg" alt="" width="1200" height="630">
   <p class="kicker">Серия «Кровь помнит», часть третья</p>
   <h1>Твоя метка Хаоса</h1>
   <p class="sub">Абсолютно верных не бывает</p>
@@ -185,7 +187,7 @@ h2{font-size:clamp(26px,7vw,36px)}
   <div class="block">
     <h3>Поделиться</h3>
     <div class="row">
-      <button class="btn small" id="copy" type="button">Скопировать результат</button>
+      <button class="btn small" id="copy" type="button">Поделиться результатом</button>
       <button class="btn small ghost" id="again" type="button">Пройти ещё раз</button>
       <span class="copied" id="copied" role="status"></span>
     </div>
@@ -193,7 +195,8 @@ h2{font-size:clamp(26px,7vw,36px)}
   </div>
   <div class="block">
     <p style="margin:0;color:var(--dust)">Я сделал эту серию один: вопросы, расчёт, тексты — всё по вечерам после работы. Если тест понравился, можешь поддержать меня, так выйдет следующий.</p>
-    <div class="row">
+    <div class="row"><button class="btn small" id="thanksBtn" type="button" aria-expanded="false">Поддержать автора</button></div>
+    <div class="row" id="thanksOpts" hidden>
       <a class="btn small ghost" href="https://boosty.to/lifelover2311/donate" target="_blank" rel="noopener" data-goal="donate_boosty">Boosty</a>
       <a class="btn small ghost" href="https://yoomoney.ru/to/4100119662398407" target="_blank" rel="noopener" data-goal="donate_yoomoney">ЮMoney (карта любого банка)</a>
     </div>
@@ -217,6 +220,7 @@ h2{font-size:clamp(26px,7vw,36px)}
   </div>
 </section>
 
+<script src="https://lifelover2311.github.io/delo.js"></script>
 <script src="data.js"></script>
 <script src="engine.js"></script>
 <script>
@@ -234,7 +238,8 @@ function wait(ms){ return new Promise(function(r){ setTimeout(r,reduce?Math.min(
 
 /* ---------- Досье из тестов 1–2 ---------- */
 var blood=ls("krov-primarhov-last"), role=ls("imperium-last");
-try{ var sp=new URLSearchParams(location.search); if(sp.get("k")&&!blood) blood={id:sp.get("k"),n:""}; }catch(e){}
+try{ var sp=new URLSearchParams(location.search), rq=sp.get("r");
+  if(rq&&ROLE_NAME[rq]&&(!role||role.id!==rq)){ role={id:rq,n:ROLE_NAME[rq],d:Date.now()}; ls("imperium-last",role); } }catch(e){}
 function bloodKind(){ if(!blood||!blood.id) return null; if(blood.id==="alpharius"||blood.id==="emperor") return blood.id; return TRAITORS.indexOf(blood.id)>=0?"traitor":"loyal"; }
 function fillMissing(box){
   box.innerHTML="";
@@ -324,13 +329,14 @@ async function answer(a){
   S.susp+= !a?8 : g==="U"?12 : g==="L"?-3 : g==="C"?1 : 0;   // «слишком чисто» тоже настораживает
   if(a&&dt<2) S.susp+=3; else if(a&&dt>9) S.susp+=4;           // заученно быстро или долгая пауза
   var disc=false;
-  if(q.slot===9||q.slot===11){ var x=cat(S.picks[S.qs.findIndex(function(z){return z.slot===(q.slot===9?4:7);})]), gods=C.GODS;
+  var prevA=null;
+  if(q.slot===9||q.slot===11){ prevA=S.picks[S.qs.findIndex(function(z){return z.slot===(q.slot===9?4:7);})]; var x=cat(prevA), gods=C.GODS;
     disc=x==="U"||g==="U"||(gods.indexOf(x)>=0&&gods.indexOf(g)>=0&&x!==g); if(disc) S.susp+=6; else if(x!==g) S.susp+=2; }
   S.susp=Math.max(5,Math.min(80,S.susp));
   if(S.idx===0) return startRecording();
   var nt=tone(); suspNote(nt!==S.tone);
   if(nt!==S.tone){ if(nt>S.tone){ await wait(500); line(null,MECH.tone,"sys"); await say(TONE_UP[nt],800); } else await say(TONE_DOWN); S.tone=nt; }
-  else if(disc) await say(TONE[S.tone].check);
+  else if(disc) await say(TONE[S.tone].check.replace("{prev}",prevA?prevA.t:"…"));
   else if(a&&dt>9&&S.tone>0&&!S.slowSaid){ S.slowSaid=true; await say(SLOW); }
   else if(!a) await say(react("miss"));
   else if(g==="U") await say(react("evade"));
@@ -409,12 +415,14 @@ function finish(){
   var top=function(){ window.scrollTo(0,0); try{ document.querySelector(".wrap").scrollIntoView({block:"start"}); }catch(e){} };
   top(); requestAnimationFrame(top); setTimeout(top,120);
 }
+$("thanksBtn").addEventListener("click",function(){ var o=$("thanksOpts"); o.hidden=!o.hidden; this.setAttribute("aria-expanded",String(!o.hidden)); });
 $("start").addEventListener("click",startQuiz);
 $("again").addEventListener("click",startQuiz);
 $("copy").addEventListener("click",function(){
   var url=LIVE?location.href.split("#")[0].split("?")[0]:"https://lifelover2311.github.io/chaos/";
   var t="Инквизитор допросил меня в тесте «Твоя метка Хаоса». Заключение: «"+S.res.h+"». Пройди сам: "+url;
   function fallback(){ var sb=$("sharebox"); sb.hidden=false; sb.value=t; sb.select(); $("copied").textContent="Выдели и скопируй текст"; }
+  if(navigator.share&&matchMedia("(pointer:coarse)").matches){ try{ navigator.share({title:"Твоя метка Хаоса",text:t}).catch(function(){}); track("share"); return; }catch(e){} }
   try{ navigator.clipboard.writeText(t).then(function(){ $("copied").textContent="Скопировано"; },fallback); }catch(e){ fallback(); }
   track("share");
 });
