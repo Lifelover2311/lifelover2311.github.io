@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Твоя роль — тесты</title>
-<meta name="description" content="Серия тестов «Твоя роль»: житейские вопросы и твоё место в любимых мирах. Кровь примархов, Твоя роль в Империуме и новые тесты.">
+<meta name="description" content="Серия тестов «Твоя роль»: житейские вопросы и твоё место в любимых мирах. Кровь примархов, Твоя роль в Империуме, Твоя метка Хаоса и новые тесты.">
 <meta property="og:title" content="Твоя роль — серия тестов">
 <meta property="og:description" content="Житейские вопросы и твоё место в любимых мирах.">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://lifelover2311.github.io/imperium/og.jpg">
+<meta property="og:image" content="https://lifelover2311.github.io/chaos/og.jpg">
 <!-- Yandex.Metrika counter -->
 <script>(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,'script','https://mc.yandex.ru/metrika/tag.js?id=113669793','ym');ym(113669793,'init',{ssr:true,clickmap:true,referrer:document.referrer,url:location.href,accurateTrackBounce:true,trackLinks:true});</script>
 <noscript><div><img src="https://mc.yandex.ru/watch/113669793" style="position:absolute;left:-9999px" alt=""></div></noscript>
@@ -35,6 +35,11 @@ h1 span{color:var(--gilt)}
 sc-u{display:inline;font:inherit;color:inherit;padding:0;margin:0;border:0;background:none;font-size:.76em}
 .t .go{color:var(--gilt);font-weight:500;margin-top:6px}
 .t.soon{opacity:.55;pointer-events:none}
+.t.hot{border-color:#8f6e2c;box-shadow:0 0 0 1px rgba(184,52,44,.35),0 10px 40px -12px rgba(184,52,44,.55)}
+.t.hot:hover{border-color:var(--gilt)}
+.t.hot .new{background:var(--seal);color:var(--bone)}
+@media (min-width:700px){.t.wide{grid-column:1/-1;flex-direction:row}.t.wide .im{flex:0 0 55%;aspect-ratio:auto;min-height:280px;border-bottom:0;border-right:1px solid var(--rule)}.t.wide .b{align-content:center;padding:24px 26px}.t.wide h2{font-size:38px}}
+@media (min-width:700px){.t.soon{grid-column:1/-1;flex-direction:row}.t.soon .im{flex:0 0 55%;aspect-ratio:auto;min-height:150px;border-bottom:0;border-right:1px solid var(--rule)}.t.soon .b{align-content:center}}
 .t.soon .im{background:repeating-linear-gradient(135deg,#1a1612 0 10px,#211b15 10px 20px);display:flex;align-items:center;justify-content:center}
 .t.soon .im span{font-family:"JetBrains Mono",monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--seal);border:2px solid var(--seal);padding:4px 12px;transform:rotate(-6deg)}
 .new{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);background:var(--gilt);padding:2px 7px;justify-self:start}
@@ -56,11 +61,15 @@ footer p{margin:0 0 6px}
     </a>
     <a class="t" href="imperium/">
       <div class="im" style="background-image:url('imperium/og.jpg')"></div>
-      <div class="b"><span class="new">Новый</span><span class="eyebrow">Часть вторая · продолжение</span><h2>Твоя роль в Импери<sc-u>У</sc-u>ме</h2><p>Анкета распределения Администратума: 16 вопросов, 24 роли, 3 секрета.</p><span class="go">Заполнить анкету →</span></div>
+      <div class="b"><span class="eyebrow">Часть вторая · продолжение</span><h2>Твоя роль в Импери<sc-u>У</sc-u>ме</h2><p>Анкета распределения Администратума: 16 вопросов, 24 роли, 3 секрета.</p><span class="go">Заполнить анкету →</span></div>
+    </a>
+    <a class="t hot wide" href="chaos/">
+      <div class="im" style="background-image:url('chaos/og.jpg')"></div>
+      <div class="b"><span class="new">Новый</span><span class="eyebrow">Часть третья · допрос</span><h2>Твоя метка Хаоса</h2><p>Абсолютно верных не бывает. Инквизитор вызвал тебя на допрос: 14 вопросов о желаниях, страхах и радостях. Какой бог Хаоса к тебе тянется и насколько далеко ты зашёл.</p><span class="go">Начать допрос →</span></div>
     </a>
     <div class="t soon" aria-hidden="true">
       <div class="im"><span>Засекречено</span></div>
-      <div class="b"><span class="eyebrow">Глава третья</span><h2>Скоро</h2><p>Следующий тест уже в работе.</p></div>
+      <div class="b"><span class="eyebrow">Глава четвёртая</span><h2>Скоро</h2><p>Инквизитор ещё не закончил с тобой.</p></div>
     </div>
   </div>
   <div class="thanks"><span>Тесты делает один человек, по вечерам после работы.</span><a href="https://boosty.to/lifelover2311/donate" target="_blank" rel="noopener">Поддержать на Boosty</a><a href="https://yoomoney.ru/to/4100119662398407" target="_blank" rel="noopener">ЮMoney</a></div>

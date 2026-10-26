@@ -213,6 +213,13 @@ details.all summary{cursor:pointer;color:var(--dust);font-size:15px}
 .histi:hover{background:rgba(207,167,82,.1)}
 .thanks{margin:30px 0 0;padding:20px;border:1px solid var(--gilt-deep);background:rgba(26,22,18,.92)}
 .thanks p{margin:0 0 14px;max-width:34em}
+.nextch{display:grid;grid-template-columns:minmax(0,1fr);margin:30px 0 8px;border:1px solid var(--gilt);background:var(--vault-2);color:inherit;text-decoration:none;transition:transform .15s,box-shadow .15s}
+.nextch:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.45)}
+.nextch .nc-im{aspect-ratio:1200/630;background:url("../chaos/og.jpg") center/cover;border-bottom:1px solid var(--rule)}
+.nextch .nc-b{display:grid;gap:6px;padding:16px 18px 18px}
+.nextch b{font-family:var(--f-display);font-weight:800;font-size:clamp(26px,6vw,32px);line-height:1.05;color:var(--bone)}
+.nextch .nc-go{color:var(--gilt);font-weight:500;margin-top:4px}
+@media (min-width:600px){.nextch{grid-template-columns:240px minmax(0,1fr)}.nextch .nc-im{aspect-ratio:auto;min-height:100%;border-bottom:0;border-right:1px solid var(--rule)}}
 .series{margin:30px 0 0;padding:16px 18px;border:1px solid var(--rule);background:rgba(26,22,18,.85);display:grid;gap:6px}
 .series a{font-family:var(--f-display);font-size:20px;text-decoration:none}
 footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--rule);font-size:13px;color:var(--dust)}
@@ -307,6 +314,16 @@ footer p{margin:0 0 6px}
     <p class="mnote" id="rMn"></p>
     <dl class="facts2" id="rFacts"></dl>
   </article>
+
+  <a class="nextch" id="nextCh" href="../chaos/">
+    <span class="nc-im" aria-hidden="true"></span>
+    <span class="nc-b">
+      <span class="eyebrow">Глава третья · уже вышла</span>
+      <b>Твоя метка Хаоса</b>
+      <span>Анкета ушла в Инквизицию, и тебя вызвали на допрос. Инквизитор спросит не что ты делал, а что при этом чувствовал. Он уже знает твою кровь и роль.</span>
+      <span class="nc-go">Начать допрос →</span>
+    </span>
+  </a>
 
   <div id="rNear">
     <h3 class="h3">Ближайшие роли</h3>
@@ -700,8 +717,11 @@ function renderResult(){
   if(!state.view){ ls(LKEY,{id:p.id,n:p.n,d:Date.now()}); saveHist(res,p,top); }
   renderView(); renderHist(); prepCard();
   if(state.view) $("delo").hidden=true; else if(window.DELO) DELO.mount($("delo"));
+  refreshNext(state.view?null:p.id);
   show("result");
 }
+function refreshNext(rid){ try{ var a=$("nextCh"), q=(window.DELO&&DELO.carry)?DELO.carry():""; if(rid) q=(q?q+"&":"?")+"r="+encodeURIComponent(rid); a.href="../chaos/"+q; }catch(e){} }
+$("nextCh").addEventListener("click",function(){ track("to_chaos"); });
 function peek(x){ var r=x.r, P=$("rPeek"); P.hidden=false; P.innerHTML="";
   P.appendChild(mk("span","eyebrow",r.dep)); P.appendChild(mk("h4",null,r.n+" · "+x.pct+"%")); P.appendChild(mk("p","ep",r.ep)); P.appendChild(mk("p",null,r.d));
   P.appendChild(mk("p",null,"«"+r.m+"»")); P.scrollIntoView({behavior:reduce?"auto":"smooth",block:"nearest"}); }
