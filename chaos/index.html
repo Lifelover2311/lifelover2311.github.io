@@ -336,13 +336,13 @@ async function answer(a){
   if(S.changing){ S.changing=false; S.picks[S.idx]=a; line("me",a.t); note("[ответ изменён]"); await say(TONE[S.tone].change,500); return next(); }
   S.picks[S.idx]=a;
   line("me",a?a.t:"…");
-  if(S.rec){ if(a&&dt>7) note("[пауза "+Math.round(dt)+" сек]"); else if(a&&dt<2.5&&Math.random()<.3) note("[ответ дан за "+Math.max(1,Math.round(dt))+" сек]"); else if(!a) note("[ответа нет]"); }
+  if(S.rec){ if(a&&dt>14) note("[пауза "+Math.round(dt)+" сек]"); else if(a&&dt<2.5&&Math.random()<.3) note("[ответ дан за "+Math.max(1,Math.round(dt))+" сек]"); else if(!a) note("[ответа нет]"); }
   // подозрение: от уклончивых ответов и пауз, не от богов
   var g=cat(a);
   // фон: допрос сам по себе накаляется (+0,5…+3 за ответ), плюс конкретные поводы
   S.susp+= .5+Math.random()*2.5;
   S.susp+= !a?8 : g==="U"?12 : g==="L"?-3 : g==="C"?1 : 0;   // «слишком чисто» тоже настораживает
-  if(a&&dt<2) S.susp+=3; else if(a&&dt>9) S.susp+=4;           // заученно быстро или долгая пауза
+  if(a&&dt<2) S.susp+=3; else if(a&&dt>18) S.susp+=4;           // заученно быстро или долгая пауза
   var disc=false;
   var prevA=null;
   if(q.slot===9||q.slot===11){ prevA=S.picks[S.qs.findIndex(function(z){return z.slot===(q.slot===9?4:7);})]; var x=cat(prevA), gods=C.GODS;
@@ -352,7 +352,7 @@ async function answer(a){
   var nt=tone(); suspNote(nt!==S.tone);
   if(nt!==S.tone){ if(nt>S.tone){ await wait(500); line(null,MECH.tone,"sys"); await say(TONE_UP[nt],800); } else await say(TONE_DOWN); S.tone=nt; }
   else if(disc) await say(TONE[S.tone].check.replace("{prev}",prevA?prevA.t:"…"));
-  else if(a&&dt>9&&S.tone>0&&!S.slowSaid){ S.slowSaid=true; await say(SLOW); }
+  else if(a&&dt>18&&S.tone>0&&!S.slowSaid){ S.slowSaid=true; await say(SLOW); }
   else if(!a) await say(react("miss"));
   else if(g==="U") await say(react("evade"));
   else if(S.idx===S.cut){ await wait(700); var m=line("inq","",null), c=mk("span","cur"); m.appendChild(c); await wait(1400); m.remove(); line(null,MECH.cut,"sys"); }
