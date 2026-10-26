@@ -241,8 +241,8 @@ h2{font-size:clamp(26px,7vw,36px)}
 </section>
 
 <script src="https://lifelover2311.github.io/delo.js"></script>
-<script src="data.js"></script>
-<script src="engine.js"></script>
+<script src="data.js?v=1026b"></script>
+<script src="engine.js?v=1026b"></script>
 <script>
 "use strict";
 var $=function(id){return document.getElementById(id);};
@@ -405,7 +405,7 @@ async function next(){
 function list(arr){ var ul=mk("ul"); arr.forEach(function(t){ ul.appendChild(mk("li",null,t)); }); return ul; }
 function split(s){ return s.split(/(?<=[.!?])\s+(?=[А-ЯЁA-Z«])/).map(function(x){return x.replace(/\.$/,"");}).filter(Boolean); }
 function finish(){
-  var r=C.score(S.qs,S.picks), R=RESULTS[r.id];
+  var r=C.score(S.qs,S.picks,{blood:blood&&blood.id,role:role&&role.id}), R=RESULTS[r.id];
   // сохранить для следующих тестов серии
   var ans={}; S.qs.forEach(function(q,i){ var p=S.picks[i]; var pq=POOL[q.slot-1].qs.find(function(x){return x.id===q.id;}); ans[q.id]=p?[pq.a.indexOf(p)]:[]; }); ans._t=Date.now();
   ls("chaos-answers",ans);

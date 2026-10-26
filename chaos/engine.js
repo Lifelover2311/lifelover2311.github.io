@@ -14,6 +14,30 @@ var CFG={
   near:.06                      // разрыв, при котором «рядом слышен ещё голос»
 };
 
+/* Связь с тестами 1–2: лёгкий сдвиг, а не приговор.
+   chaos — прибавка к «количеству Хаоса» в шагах (счёт целый, 1 шаг ≈ ±5 п.п. к «Чист»+«Верен»;
+   минус — труднее получить метку). Кровь и роль складываются, максимум ±2 шага;
+   god — к какому богу чуть тянет (множитель к его доле). */
+var LINK={
+  blood:{chaos:{traitor:1,alpharius:0,loyal:-1,emperor:-1},
+         god:{angron:"K",fulgrim:"S",mortarion:"N",magnus:"T"}, mul:1.08},
+  traitors:["horus","angron","fulgrim","perturabo","mortarion","magnus","lorgar","curze"],
+  role:{chaos:{sororitas:-1,commissar:-1,inquisitor:-1,silence:-1,custodian:-1,preacher:-1,
+               underhive:1,genecult:1,psyker:1,trader:1,governor:1},
+        god:{psyker:"T",astropath:"T",navigator:"T",chronicler:"T",
+             guard:"K",ogryn:"K",knight:"K",skitarius:"K",
+             agri:"N",underhive:"N",adept:"N",servitor:"N",
+             trader:"S",governor:"S",ratling:"S"}, mul:1.05}
+};
+function linkOf(ctx){
+  var o={chaos:0,mul:{K:1,T:1,N:1,S:1}}; if(!ctx) return o;
+  var b=ctx.blood, r=ctx.role;
+  if(b){ var k=(b==="alpharius"||b==="emperor")?b:(LINK.traitors.indexOf(b)>=0?"traitor":"loyal");
+    o.chaos+=LINK.blood.chaos[k]||0; var g=LINK.blood.god[b]; if(g) o.mul[g]*=LINK.blood.mul; }
+  if(r){ o.chaos+=LINK.role.chaos[r]||0; var g2=LINK.role.god[r]; if(g2) o.mul[g2]*=LINK.role.mul; }
+  return o;
+}
+
 function shuffle(a,rnd){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(rnd()*(i+1)), t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
 
 /* 14 вопросов: по одному из каждого слота, слоты по порядку (1 — первый, 14 — последний).
@@ -30,7 +54,8 @@ function pickQuestions(pool,rnd){
 }
 
 /* picks[i] — выбранный ответ (объект из q.a) или null (не успел на таймере). */
-function score(qs,picks){
+function score(qs,picks,ctx){
+  var lk=linkOf(ctx);
   var raw={K:0,T:0,N:0,S:0}, max={K:0,T:0,N:0,S:0}, n={C:0,L:0,U:0,G:0,miss:0};
   qs.forEach(function(q,i){
     q.a.forEach(function(a){ if(a.w&&a.w>max[a.g]) max[a.g]=a.w; });
@@ -40,10 +65,10 @@ function score(qs,picks){
   });
   function a_isGod(g){ return GODS.indexOf(g)>=0; }
   var norm={}, total=0, best=null, second=null;
-  GODS.forEach(function(g){ norm[g]=max[g]?raw[g]/max[g]:0; total+=raw[g]; });
+  GODS.forEach(function(g){ norm[g]=(max[g]?raw[g]/max[g]:0)*lk.mul[g]; total+=raw[g]; });
   var ranked=GODS.slice().sort(function(a,b){ return norm[b]*CFG.bias[b]-norm[a]*CFG.bias[a] || raw[b]-raw[a]; });
   best=ranked[0]; second=ranked[1];
-  var purity=n.C+n.L, chaos=total-CFG.pen*purity;
+  var purity=n.C+n.L, chaos=total-CFG.pen*purity+lk.chaos;
   var r={raw:raw,norm:norm,n:n,chaos:chaos,loyalty:n.L};
   if(n.G>=CFG.gork){ r.id="gork"; return r; }
   if(chaos<CFG.clean){ r.id=(n.L-n.C>=CFG.loyal)?"loyal":"clean"; return r; }
@@ -55,5 +80,5 @@ function score(qs,picks){
 }
 
 Object.assign(CFG,{"bias": {"K": 0.785, "T": 0.569, "N": 0.616, "S": 0.626}, "pen": 1, "clean": 6, "loyal": 0, "depth": {"K": [2.0283, 2.6136, 3.5641], "T": [1.786, 2.388, 3.09], "N": [1.7595, 2.3981, 3.1266], "S": [1.8066, 2.3057, 3.104]}, "gork": 3, "near": 0.06}); /* подобрано симуляцией 26.10.2026 */
-root.CHAOS={GODS:GODS,CFG:CFG,pickQuestions:pickQuestions,score:score,shuffle:shuffle};
+root.CHAOS={GODS:GODS,CFG:CFG,LINK:LINK,pickQuestions:pickQuestions,score:score,shuffle:shuffle};
 })(typeof window!=="undefined"?window:globalThis);
