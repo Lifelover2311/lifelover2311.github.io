@@ -206,6 +206,7 @@ h2{font-size:clamp(26px,7vw,36px)}
     <div class="cardout" id="cardOut" hidden><img id="cardImg" alt="Карточка с результатом теста"><p class="note" id="cardNote"></p></div>
     <div class="hist" id="histRes" hidden></div>
   </div>
+  <div id="delo" hidden></div>
   <div class="block">
     <p style="margin:0;color:var(--dust)">Я сделал эту серию один: вопросы, расчёт, тексты — всё по вечерам после работы. Если тест понравился, можешь поддержать меня, так выйдет следующий.</p>
     <div class="row"><button class="btn small" id="thanksBtn" type="button" aria-expanded="false">Поддержать автора</button></div>
@@ -434,6 +435,7 @@ function renderResult(){
   $("missBox").hidden=view?true:!fillMissing($("missBtns"));
   $("cardOut").hidden=true; $("copied").textContent=""; $("sharebox").hidden=true;
   renderView(); renderHist(); prepCard();
+  if(view) $("delo").hidden=true; else if(window.DELO) DELO.mount($("delo"));
   show("result");
   var top=function(){ window.scrollTo(0,0); try{ document.querySelector(".wrap").scrollIntoView({block:"start"}); }catch(e){} };
   top(); requestAnimationFrame(top); setTimeout(top,120);
