@@ -411,6 +411,7 @@ function finish(){
   ls("chaos-answers",ans);
   ls("chaos-last",{id:r.id,n:R.h,god:r.god||null,lvl:r.god?r.lvl:null,loy:r.loyalty,d:Date.now()});
   track("done",{res:r.id,god:r.god||r.id,lvl:r.god?r.lvl:-1,loyal:r.loyalty,susp:S.susp,
+    blood:(blood&&blood.id)||"none",role:(role&&role.id)||"none",
     ans:S.qs.map(function(q,i){ var p=S.picks[i]; return q.id+"."+(p?p.g+(p.w||""):"0"); }).join("-")});
   var res={id:r.id,god:r.god||null,lvl:r.god?r.lvl:null,echo:r.echo||null};
   saveHist(res);
