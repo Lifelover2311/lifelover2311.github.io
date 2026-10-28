@@ -220,6 +220,13 @@ h2{font-size:clamp(26px,7vw,36px)}
 /* Результат */
 .res{border:1px solid var(--rule);background:var(--vault);padding:22px 18px;display:grid;gap:14px;margin-top:12px}
 .res p{margin:0}
+.bars{display:grid;gap:9px;padding:12px 14px;border:1px solid var(--rule);background:rgba(0,0,0,.25)}
+.bars h4{margin:0 0 2px;font-family:var(--f-mono);font-weight:500;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dust)}
+.bar{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:15px}
+.bar b{font-weight:500}.bar span{font-family:var(--f-mono);color:var(--dust)}
+.bar i{grid-column:1/-1;height:6px;background:#2a231b;border-radius:3px;overflow:hidden}
+.bar i em{display:block;height:100%;width:0;background:var(--dust);transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+.bar:first-of-type i em{background:var(--gilt)}
 .res .rk{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dust);margin-bottom:-6px}
 .res .lead{font-family:var(--f-it);font-style:italic;color:var(--gilt);font-size:18px}
 .res .race{border-top:1px solid var(--rule);padding-top:14px;display:grid;gap:12px}
@@ -692,14 +699,21 @@ function compute(){
     r.step=Xv<=th[0]?0:Xv<=th[1]?1:Xv<=th[2]?2:3;
   }
   r.code=X.RACE_CODE[r.race]; r.sub=X.subrace(r.code,r.v);
+  /* к кому тянет: доля расы среди всех семи (softmax, τ=2 — у лидера обычно около 40%) */
+  var mx=Math.max.apply(null,T.RACE_LIST.map(function(k){ return r.F[k]; })), ex={}, sum=0;
+  T.RACE_LIST.forEach(function(k){ ex[k]=Math.exp((r.F[k]-mx)/2); sum+=ex[k]; });
+  r.top=T.RACE_LIST.map(function(k){ return [X.RACE_CODE[k],Math.round(100*ex[k]/sum)]; }).sort(function(a,b){ return b[1]-a[1]; }).slice(0,3);
+  r.top[0][0]=r.code;
   return r;
 }
 /* код результата: раса + ступень + подраса, напр. eldar2-3 */
-function enc(c){ return c.race+c.step+"-"+c.sub; }
+var RC=["eldar","drukhari","orks","tau","necrons","tyranids","cult"];
+function enc(c){ var t=(c.top||[]).slice(1).map(function(x){ return RC.indexOf(x[0])+"."+x[1]; }).join("."); return c.race+c.step+"-"+c.sub+(c.top?"-"+c.top[0][1]+(t?"."+t:""):""); }
 function dec(code){
-  var m=/^(eldar|drukhari|orks|tau|necrons|tyranids|cult)([0-3])(?:-(\d))?$/.exec(code||""); if(!m) return null;
+  var m=/^(eldar|drukhari|orks|tau|necrons|tyranids|cult)([0-3])(?:-(\d))?(?:-(\d{1,3})(?:\.(\d)\.(\d{1,3}))?(?:\.(\d)\.(\d{1,3}))?)?$/.exec(code||""); if(!m) return null;
   var sub=+(m[3]||0); if(RES[m[1]].sub&&sub>=RES[m[1]].sub.length) sub=0;
-  return {race:m[1],step:+m[2],sub:sub};
+  var top=null; if(m[4]){ top=[[m[1],+m[4]]]; [[5,6],[7,8]].forEach(function(q){ if(m[q[0]]!=null&&RC[+m[q[0]]]) top.push([RC[+m[q[0]]],+m[q[1]]]); }); }
+  return {race:m[1],step:+m[2],sub:sub,top:top};
 }
 function titleOf(c){ return c.step===0?"Ксенофоб":RES[c.race].steps[c.step-1].h; }
 function render(c,view){
@@ -709,11 +723,11 @@ function render(c,view){
   art.hidden=true; im.onload=function(){ art.style.backgroundImage="url('"+src+"')"; art.hidden=false; }; im.src=src;
   if(xen){ box.appendChild(mk("h2",null,"Ксенофоб")); box.appendChild(mk("p","lead",Z.img));
     box.appendChild(mk("p","ep",Z.ep)); box.appendChild(mk("p","motto","«"+Z.m+"»")); box.appendChild(mk("p",null,Z.d));
-    box.appendChild(mk("p","hate",Z.hate[c.race]));
+    box.appendChild(mk("p","hate",Z.hate[c.race])); appendBars(box,c.top,true);
     appendCols(box,Z); box.appendChild(mk("p","think",Z.th));
   } else {
     var St=R.steps[c.step-1];
-    box.appendChild(mk("h2",null,St.h)); box.appendChild(mk("p","lead",St.i)); box.appendChild(mk("p",null,St.p));
+    box.appendChild(mk("h2",null,St.h)); box.appendChild(mk("p","lead",St.i)); box.appendChild(mk("p",null,St.p)); appendBars(box,c.top,false);
     var rc=mk("div","race"); rc.appendChild(mk("h3","rn",R.name)); rc.appendChild(mk("p","img",R.img));
     rc.appendChild(mk("p","ep",R.ep)); rc.appendChild(mk("p","motto","«"+R.m+"»")); rc.appendChild(mk("p",null,R.d));
     var sr=R.sub[Math.min(c.sub,R.sub.length-1)]; if(sr){ var sp=mk("p","sr"); sp.appendChild(mk("b",null,sr[0]+". ")); sp.appendChild(document.createTextNode(sr[1])); rc.appendChild(sp); }
@@ -727,6 +741,13 @@ function render(c,view){
     (xen?X.END_CLEAN:X.END_SUSPECT).forEach(function(l){ var p=mk("p"); p.appendChild(mk("b",null,WHO[l[0]])); p.appendChild(document.createTextNode("«"+l[1]+"»")); af.appendChild(p); });
     revealAfter(af);
   }
+}
+function appendBars(box,top,xen){
+  if(!top||!top.length) return;
+  var w=mk("div","bars"); w.appendChild(mk("h4",null,xen?"Кого не выносишь сильнее всего":"К кому тянет"));
+  top.forEach(function(t){ if(!RES[t[0]]) return; var b=mk("div","bar"); b.appendChild(mk("b",null,RES[t[0]].name)); b.appendChild(mk("span",null,t[1]+"%"));
+    var i=mk("i"), e=mk("em"); i.appendChild(e); b.appendChild(i); w.appendChild(b); setTimeout(function(){ e.style.width=Math.min(100,t[1])+"%"; },120); });
+  box.appendChild(w);
 }
 function appendCols(el,R){ var cols=mk("div","cols"), c1=mk("div"), c2=mk("div");
   c1.appendChild(mk("h4",null,"Сильные стороны")); c1.appendChild(list(split(R.s)));
@@ -756,8 +777,8 @@ function showResult(){
   top(); requestAnimationFrame(top); setTimeout(top,120);
 }
 function finish(){
-  var r=compute(), c={race:r.code,step:r.step,sub:r.sub}, title=titleOf(c), id=r.code+r.step;
-  ls("xenos-last",{id:id,race:r.code,step:r.step,sub:r.sub,n:title,rn:RES[r.code].name,F:r.F,X:r.X,d:Date.now()});
+  var r=compute(), c={race:r.code,step:r.step,sub:r.sub,top:r.top}, title=titleOf(c), id=r.code+r.step;
+  ls("xenos-last",{id:id,race:r.code,step:r.step,sub:r.sub,top:r.top,n:title,rn:RES[r.code].name,F:r.F,X:r.X,d:Date.now()});
   ls("xenos-answers",{sel:S.sel,raw:S.raw,_t:Date.now(),min:Math.round((Date.now()-S.t0)/60000)});
   saveHist(c);
   track("done",{res:id,race:r.code,step:r.step,sub:r.sub,series:r.prior.has?1:0,min:Math.round((Date.now()-S.t0)/60000),
@@ -783,7 +804,7 @@ function renderHist(){
   if(h.length) $("start").textContent="Явиться на осмотр снова";
 }
 function openFromHash(){
-  var m=/[#&]r=([0-9A-Za-z-]+)/.exec(location.hash); if(!m) return;
+  var m=/[#&]r=([0-9A-Za-z.-]+)/.exec(location.hash); if(!m) return;
   var c=dec(m[1]); if(!c){ clearHash(); if(CUR&&CUR.view==="friend"){ CUR=null; show("intro"); } return; }
   CUR={c:c,view:"friend"}; track("friend_view"); showResult();
 }
