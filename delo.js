@@ -7,7 +7,9 @@
 "use strict";
 
 var BASE=(function(){ var s=document.currentScript; return s&&s.src?s.src.replace(/[^\/]*$/,""):"/"; })();
-var KROV_KEY="krov-primarhov-last", IMP_KEY="imperium-last", CHAOS_KEY="chaos-last";
+var KROV_KEY="krov-primarhov-last", IMP_KEY="imperium-last", CHAOS_KEY="chaos-last", XENOS_KEY="xenos-last";
+/* Тест 4 открыт людям? Пока false — на него ведёт только прямая ссылка, кнопок к нему нет. */
+var XENOS_OPEN=false;
 var LIVE=/github\.io$/.test(location.hostname);
 
 var ROLE_ART={adept:"01-adept",guard:"02-guard",commissar:"03-commissar",techpriest:"04-techpriest",inquisitor:"05-inquisitor",sororitas:"06-sister-battle",preacher:"07-preacher",trader:"08-rogue-trader",navigator:"09-navigator",astropath:"10-astropath",arbitrator:"11-arbitrator",assassin:"12-assassin",governor:"13-governor",hospitaller:"14-hospitaller",underhive:"15-underhive",navy:"16-navy-officer",psyker:"17-psyker",genecult:"18-genecult",ogryn:"19-ogryn",ratling:"20-ratling",silence:"21-sister-silence",knight:"22-knight",agri:"23-agriworld",chronicler:"24-chronicler",custodian:"25-custodian",servitor:"26-servitor",skitarius:"27-skitarius"};
@@ -206,7 +208,9 @@ function getState(){
   r=(r&&r.id&&ROLE_ART[r.id])?r:null;
   var c=ls(CHAOS_KEY);
   c=(c&&typeof c.id==="string"&&/^([KTNS][0-3]|clean|loyal|gork)$/.test(c.id)&&typeof c.n==="string")?c:null;
-  return {blood:b, role:r, chaos:c, full:!!(b&&r), complete:!!(b&&r&&c), any:!!(b||r)};
+  var xn=ls(XENOS_KEY);
+  xn=(xn&&typeof xn.id==="string"&&/^(eldar|drukhari|orks|tau|necrons|tyranids|cult)[0-3]$/.test(xn.id)&&typeof xn.n==="string")?xn:null;
+  return {blood:b, role:r, chaos:c, xenos:xn, full:!!(b&&r), complete:!!(b&&r&&c), any:!!(b||r||xn)};
 }
 function caseNo(st){
   var s=(st.blood?st.blood.id:"-")+"|"+(st.role?st.role.id:"-"), h=7, i;
@@ -298,11 +302,36 @@ function drawFx(x,W,H,img,o,zones){
   }
   tc.putImageData(im,0,0); x.drawImage(t,0,0);
 }
-function makeCard(st,imgB,imgR,imgC){
+/* ---------- Слой теста 4: след ксеноса ----------
+   Уголок расы на чёрном фоне (delo-art/x-<раса>.jpg), фон убираем по яркости. Растёт из левого нижнего угла:
+   чем выше ступень связи, тем больше. Под текстом гаснет. У Ксенофоба (ступень 0) следа нет. */
+/* ступень → [размер в долях ширины карточки, непрозрачность]. Уголок прижат к левому нижнему углу. */
+/* у некронов полоса шире остальных — уменьшаем, чтобы толщина у края совпадала */
+var XW={"x-necrons":.8};
+var XLV=[null,[.42,.85],[.66,.9],[.92,.95]];
+function xfxOf(xn){ if(!xn) return null; var m=/^([a-z]+)([0-3])$/.exec(xn.id); if(!m||m[2]==="0") return null;
+  return {fx:{f:"x-"+m[1]},L:XLV[+m[2]]}; }
+function drawMark(x,W,H,img,o){
+  if(!img) return;
+  var L=o.L, sz=Math.round(W*L[0]*(XW[o.fx.f]||1)), t=document.createElement("canvas"); t.width=sz; t.height=sz; var tc=t.getContext("2d");
+  tc.drawImage(img,0,0,sz,sz);
+  var im=tc.getImageData(0,0,sz,sz), d=im.data, i, r, g, b, lum, mx, mn, sat, a, px, py, X, Y, ef, zy, zx, z, pr, zi, zones=[[95,350],[1005,1850]];
+  for(py=0;py<sz;py++) for(px=0;px<sz;px++){ i=(py*sz+px)*4; r=d[i]; g=d[i+1]; b=d[i+2]; lum=(r+g+b)/3; mx=Math.max(r,g,b); mn=Math.min(r,g,b); sat=(mx-mn)/(mx||1);
+    a=lum>18?Math.max((lum-28)/90,sat*1.5-.25):0; a=a<0?0:a>1?1:a;
+    ef=Math.min(1,py/(sz*.18),(sz-px)/(sz*.18)); a*=ef<0?0:ef;               /* мягкие концы у уголка */
+    X=px; Y=H-sz+py; pr=1;                                                  /* под текстом метка почти гаснет */
+    for(zi=0;zi<zones.length;zi++){ zy=Math.min(Y-zones[zi][0],zones[zi][1]-Y)/40+.5; zx=Math.min(X-70,W-70-X)/40+.5;
+      if(zy>0&&zx>0){ z=(zy>1?1:zy)*(zx>1?1:zx); if(1-z*.82<pr) pr=1-z*.82; } }
+    d[i+3]=a*pr*L[1]*255; }
+  tc.putImageData(im,0,0);
+  x.drawImage(t,0,H-sz);
+}
+function makeCard(st,imgB,imgR,imgC,imgX){
   var W=1080,H=1920,c=document.createElement("canvas"); c.width=W; c.height=H; var x=c.getContext("2d");
   x.fillStyle="#0d0b09"; x.fillRect(0,0,W,H);
   var bg=x.createLinearGradient(0,0,0,H); bg.addColorStop(0,"#17130e"); bg.addColorStop(1,"#0d0b09"); x.fillStyle=bg; x.fillRect(0,0,W,H);
   drawFx(x,W,H,imgC,fxOf(st.chaos)||{fx:{m:"w",g:0},R:0},[[95,350],[1005,1850]]);
+  var xo=xfxOf(st.xenos); if(xo) drawMark(x,W,H,imgX,xo);
   x.strokeStyle="#8f6e2c"; x.lineWidth=3; x.strokeRect(40,40,W-80,H-80); x.strokeStyle="#3a3027"; x.lineWidth=2; x.strokeRect(56,56,W-112,H-112);
   x.textAlign="center";
   x.fillStyle="#a2967f"; x.font="500 28px "+MONO; x.fillText("АДМИНИСТРАТУМ · ОТДЕЛ РАСПРЕДЕЛЕНИЯ",W/2,136);
@@ -321,6 +350,9 @@ function makeCard(st,imgB,imgR,imgC){
     var f=fitName(x,st.chaos.n,W-200,2); x.fillStyle="#ebe1cc";
     f.lines.forEach(function(l,i){ fillSC(x,l,W/2,py+56+i*(f.fs*1.08),f.fs); }); last=py+56+(f.lines.length-1)*f.fs*1.08;
   } else { x.fillStyle="#5a4a35"; x.font="800 44px "+SC; fillSC(x,"не приложен",W/2,py+56,44); }
+  /* тест 4: заключение магоса одной строкой */
+  if(st.xenos){ x.fillStyle="#a2967f"; x.font="500 24px "+MONO; x.fillText("ОСМОТР МАГОСА БИОЛОГИС",W/2,last+66);
+    x.fillStyle="#9fc3c0"; var xf=fitName(x,st.xenos.n,W-220,1); x.font="800 "+Math.min(44,xf.fs)+"px "+SC; fillSC(x,xf.lines[0],W/2,last+116,Math.min(44,xf.fs)); last+=116; }
   /* разделитель */
   var dv=Math.round(last+54);
   x.strokeStyle="#3a3027"; x.lineWidth=2; x.beginPath(); x.moveTo(96,dv); x.lineTo(W-96,dv); x.stroke();
@@ -333,17 +365,17 @@ function makeCard(st,imgB,imgR,imgC){
   x.fillStyle="#ebe1cc"; x.font="italic "+fs+"px "+SERIF;
   lines.forEach(function(l,i){ x.fillText(l,W/2,ty+i*lh); });
   /* низ карточки: заполненность и призыв */
-  var done=(st.blood?1:0)+(st.role?1:0)+(st.chaos?1:0), by=1712, bw=100, bx=W/2-bw*1.5-24;
-  for(var i=0;i<3;i++){ x.fillStyle=i<done?"#cfa752":"#2a231b"; x.fillRect(bx+i*(bw+24),by,bw,10); }
-  x.fillStyle="#a2967f"; x.font="500 26px "+MONO; x.fillText("ДЕЛО ЗАПОЛНЕНО: "+done+" ИЗ 3",W/2,by+54);
+  var done=(st.blood?1:0)+(st.role?1:0)+(st.chaos?1:0)+(st.xenos?1:0), TOT=XENOS_OPEN||st.xenos?5:3, by=1712, bw=TOT===5?84:100, gp=TOT===5?18:24, bx=W/2-(TOT*bw+(TOT-1)*gp)/2;
+  for(var i=0;i<TOT;i++){ x.fillStyle=i<done?"#cfa752":"#2a231b"; x.fillRect(bx+i*(bw+gp),by,bw,10); }
+  x.fillStyle="#a2967f"; x.font="500 26px "+MONO; x.fillText("ДЕЛО ЗАПОЛНЕНО: "+done+" ИЗ "+TOT,W/2,by+54);
   x.fillStyle="#b8342c"; x.font="500 30px "+MONO; x.fillText(st.complete?"А что в твоём деле?":"Собери дело целиком",W/2,H-92);
   return c;
 }
 function buildCard(st){
   return loadFonts().then(function(){
-    var o=fxOf(st.chaos);
-    return Promise.all([st.blood?loadImg(bloodArt(st.blood.id)):null, st.role?loadImg(roleArt(st.role.id)):null, o?loadImg(fxArt(o.fx.f)):null]);
-  }).then(function(im){ return makeCard(st,im[0],im[1],im[2]); });
+    var o=fxOf(st.chaos), xo=xfxOf(st.xenos);
+    return Promise.all([st.blood?loadImg(bloodArt(st.blood.id)):null, st.role?loadImg(roleArt(st.role.id)):null, o?loadImg(fxArt(o.fx.f)):null, xo?loadImg(fxArt(xo.fx.f)):null]);
+  }).then(function(im){ return makeCard(st,im[0],im[1],im[2],im[3]); });
 }
 
 /* ---------- Блок на странице ---------- */
@@ -392,7 +424,9 @@ function mount(el,opts){
   el.hidden=false; el.className="delo"; el.innerHTML="";
   el.appendChild(mk("div","delo-eyebrow","Серия тестов · общее дело"));
   el.appendChild(mk("h3",null,"Личное дело"));
-  var lead=st.complete?"Кровь, роль и метка Хаоса собраны в одном деле. Сохрани карточку и отправь тем, кто ещё не проходил."
+  var lead=st.complete&&st.xenos?"Кровь, роль, метка Хаоса и заключение магоса собраны в одном деле. След ксеноса, если он есть, уже проступил на бумаге. Сохрани карточку и отправь тем, кто ещё не проходил."
+    :st.complete&&XENOS_OPEN?"Кровь, роль и метка Хаоса собраны в одном деле. Осмотр у магоса биологис ещё не пройден: он оставит на деле свой след. Сохрани карточку или явись на осмотр."
+    :st.complete?"Кровь, роль и метка Хаоса собраны в одном деле. Сохрани карточку и отправь тем, кто ещё не проходил."
     :st.full?"Кровь и роль собраны в одном деле. Допрос о метке Хаоса ещё не пройден: он добавит к делу свой слой. Сохрани карточку или пройди допрос."
     :(st.blood?"Дело заполнено наполовину: кровь установлена, а роли в нём нет. Пройди вторую часть, и инспектор составит заключение."
               :"Дело заполнено наполовину: роль есть, а чья в тебе кровь, неизвестно. Пройди первую часть, и инспектор составит заключение.");
@@ -400,6 +434,9 @@ function mount(el,opts){
   var row=mk("div","delo-row"), img=mk("img","delo-img"); img.alt="Карточка «Личное дело»"; row.appendChild(img);
   var side=mk("div","delo-side"), btns=mk("div","delo-btns"), save=mk("button","delo-btn","Сохранить карточку"); save.type="button"; save.disabled=true;
   btns.appendChild(save);
+  if(st.complete&&!st.xenos&&XENOS_OPEN){
+    var ax=mk("a","delo-btn ghost","Явиться на осмотр"); ax.href=BASE+"xenos/"; ax.addEventListener("click",function(){ track("to_xenos"); }); btns.appendChild(ax);
+  }
   if(st.full&&!st.chaos){
     var ac=mk("a","delo-btn ghost","Пройти допрос"), qc=carry(); qc=(qc?qc+"&":"?")+"r="+encodeURIComponent(st.role.id);
     ac.href=BASE+"chaos/"+qc; ac.addEventListener("click",function(){ track("to_chaos"); }); btns.appendChild(ac);
@@ -429,5 +466,5 @@ function mount(el,opts){
   }).catch(function(){ if(seq===mountSeq) note.textContent="Не удалось собрать картинку. Обнови страницу."; });
 }
 
-window.DELO={mount:mount,carry:carry,state:getState,conclusion:conclusion,pairs:PAIRS,bloodLine:BLOOD_LINE,roleLine:ROLE_LINE,build:buildCard};
+window.DELO={open4:XENOS_OPEN,mount:mount,carry:carry,state:getState,conclusion:conclusion,pairs:PAIRS,bloodLine:BLOOD_LINE,roleLine:ROLE_LINE,build:buildCard};
 })();
