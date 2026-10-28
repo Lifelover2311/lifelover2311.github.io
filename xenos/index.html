@@ -436,7 +436,9 @@ function say(who,text,opt){
 async function says(arr){ for(var i=0;i<arr.length;i++){ var my=RUN; await say(arr[i][0],arr[i][1]); if(!alive(my)) return; } }
 function clearTalk(){ talk.innerHTML=""; subEl.classList.remove("in"); }
 function clearKeys(){ keys.innerHTML=""; Q.classList.remove("ask"); moreCheck(); }
-function addQ(t,hint){ Q.classList.add("ask"); keys.appendChild(mk("p","q",t)); if(hint) keys.appendChild(mk("p","hint",hint)); }
+function addQ(t,hint){ Q.classList.add("ask"); keys.appendChild(mk("p","q",t)); if(hint) keys.appendChild(mk("p","hint",hint));
+  /* колонка с репликами сжимается, когда появляются ответы: последняя реплика не должна уезжать */
+  [60,450].forEach(function(d){ setTimeout(function(){ talk.scrollTop=talk.scrollHeight; },d); }); }
 function ansBtn(t,cb,cls){ var b=mk("button","ans"+(cls?" "+cls:""),t); b.type="button"; b.addEventListener("click",cb); keys.appendChild(b); setTimeout(moreCheck,30); return b; }
 /* «ещё варианты» внизу, пока список не докручен до конца */
 function moreCheck(){ var m=$("more"); m.classList.toggle("on",keys.scrollHeight-keys.clientHeight-keys.scrollTop>8); }
@@ -464,7 +466,15 @@ async function frameImg(src,cls){
 async function frameOut(){ var old=view.querySelector(".frame,.lens"); if(old&&!reduce){ old.classList.add("crt-out"); await sleep(430); } view.innerHTML=""; }
 /* окуляр: служебные строки в углах подрагивают, как живой прибор */
 var hudIv=null;
-function hudOn(){ var n=0; clearInterval(hudIv); hudIv=setInterval(function(){ n++; $("hr").textContent="Кадр "+String(1000+((Date.now()/97|0)%9000)); $("hb").textContent="Зрачок: "+(3.6+Math.random()*1.4).toFixed(1)+" мм"; },480); }
+/* Зрачок: у взрослого 2–4 мм на свету, 4–8 в темноте; в окуляре полутемно — около 4,5 мм.
+   Меняется редко (раз в 4–9 с) и на 0,1–0,2 мм, без скачков. */
+var pupil=4.5, pupilAt=0;
+function hudOn(){ clearInterval(hudIv); pupilAt=Date.now()+4000;
+  $("hb").textContent="Зрачок: "+pupil.toFixed(1).replace(".",",")+" мм";
+  hudIv=setInterval(function(){ $("hr").textContent="Кадр "+String(1000+((Date.now()/97|0)%9000));
+    if(Date.now()>=pupilAt){ pupilAt=Date.now()+4000+Math.random()*5000;
+      var d=(Math.random()<.75?.1:.2)*(Math.random()<.5?-1:1); if(pupil+d<4.1||pupil+d>4.9) d=-d; pupil=Math.round((pupil+d)*10)/10;
+      $("hb").textContent="Зрачок: "+pupil.toFixed(1).replace(".",",")+" мм"; } },480); }
 function hudOff(){ clearInterval(hudIv); }
 async function bootHud(my){
   var b=$("boot"); b.innerHTML=""; hudOn();
@@ -489,6 +499,7 @@ async function startQuiz(){
   await say(X.DOOR[1][0],X.DOOR[1][1]); if(!alive(my)) return;
   await say("m",X.entry(blood,role,chaos)); if(!alive(my)) return;
   await say("m",X.TRACES); if(!alive(my)) return;
+  await says(X.TRACES_TALK); if(!alive(my)) return;
   await fingerprint(my); if(!alive(my)) return;
   await deviceOn(my); if(!alive(my)) return;
   await colors(my); if(!alive(my)) return;
@@ -517,7 +528,7 @@ function fingerprint(my){
     function up(){ if(done||!t0) return; var held=Date.now()-t0; t0=0; cancelAnimationFrame(raf); sc.classList.remove("hold"); ring.style.strokeDashoffset=314; lab.textContent="Зажмите и держите";
       say("m",X.PRINT_EARLY[(S.raw.print.tries-1)%X.PRINT_EARLY.length],{hold:true}); S.raw.print.early=(S.raw.print.early||0)+1; S.raw.print.lastEarly=held; }
     async function ok(){ done=true; S.raw.print.hold=Date.now()-t0; sc.classList.remove("hold"); sc.classList.add("done"); lab.textContent="Отпечаток записан";
-      cleanup(); await sleep(500); await say("m",X.PRINT_OK); view.innerHTML=""; res(); }
+      cleanup(); await sleep(500); await say("m",X.PRINT_OK); view.innerHTML=""; await says(X.PRINT_TALK); res(); }
     function kd(e){ if((e.key===" "||e.key==="Enter")&&!e.repeat){ down(e); } }
     function ku(e){ if(e.key===" "||e.key==="Enter") up(); }
     sc.addEventListener("pointerdown",function(e){ try{ sc.setPointerCapture(e.pointerId); }catch(_){} down(e); });
@@ -575,7 +586,7 @@ async function rorschach(my){
     S.sel.rorschach.push([s,r.a]); S.raw.ink.push([s,r.ms]);
   }
   await frameOut(); setTop("Окуляр","");
-  await say("m",X.JIBE);
+  await says(X.JIBE);
 }
 function multi(list){
   return new Promise(function(res){
@@ -636,7 +647,10 @@ async function dream(my){
 async function breakdown(my){
   ["s1","s2","gr","gc"].forEach(function(id){ $(id).src=bgA.src; });
   var cls=["g1","g2","g3","g4","g5","g6"];
-  for(var i=0;i<X.BREAK.length;i++){ Q.classList.add(cls[i]); await say(X.BREAK[i][0],X.BREAK[i][1]); if(!alive(my)) return; }
+  Q.classList.add(cls[0]); await sleep(reduce?300:2200); if(!alive(my)) return;   /* сначала молча портится картинка */
+  for(var i=0;i<X.BREAK.length;i++){
+    if(i>0){ Q.classList.add(cls[i]); await sleep(reduce?150:900); if(!alive(my)) return; }
+    await say(X.BREAK[i][0],X.BREAK[i][1]); if(!alive(my)) return; }
   Q.classList.add("melt"); await sleep(900);
   cls.forEach(function(c){ Q.classList.remove(c); });
   await say("m",X.JUNG_GO); if(!alive(my)) return;
@@ -690,11 +704,11 @@ function split(s){ return s.split(/(?<=[.!?])\s+(?=[А-ЯЁA-Z«])/).map(functio
 function compute(){
   var prior=X.priorFrom(blood,role,chaos);
   var r=T.score(S.sel,prior);
-  /* липкость при повторе: 20% прошлого счёта */
+  /* липкость при повторе: 10% прошлого счёта */
   var prev=ls("xenos-last");
   if(prev&&prev.F&&typeof prev.X==="number"){
-    var F={}; T.RACE_LIST.forEach(function(k){ F[k]=.8*r.F[k]+.2*(prev.F[k]||0); });
-    var Xv=.8*r.X+.2*prev.X, th=r.prior.has?T.K.stepsSeries:T.K.stepsOnly4;
+    var F={}; T.RACE_LIST.forEach(function(k){ F[k]=.9*r.F[k]+.1*(prev.F[k]||0); });
+    var Xv=.9*r.X+.1*prev.X, th=r.prior.has?T.K.stepsSeries:T.K.stepsOnly4;
     r.F=F; r.X=Xv; r.race=T.RACE_LIST.reduce(function(a,b){ return F[a]>=F[b]?a:b; });
     r.step=Xv<=th[0]?0:Xv<=th[1]?1:Xv<=th[2]?2:3;
   }
