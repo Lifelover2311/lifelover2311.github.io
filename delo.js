@@ -201,36 +201,6 @@ function conclusion(b,r){
   return q||p||"";
 }
 
-
-/* ---------- Приписки (тест 3 — дознаватель, тест 4 — магос биологис) ---------- */
-function notes(st){
-  var N=window.DELO_NOTES, out=[]; if(!N) return out;
-  var b=st.blood&&st.blood.id, r=st.role&&st.role.id, c=st.chaos&&st.chaos.id, god=c&&/^[KTNS]/.test(c)?c[0]:null;
-  function pick(tab,keys){ for(var i=0;i<keys.length;i++){ if(keys[i]&&tab[keys[i]]) return tab[keys[i]]; } return null; }
-  function by(id,keys){ return id?keys.map(function(k){ return id+":"+k; }):[]; }
-  /* магос считается первым: если он спорит с инспектором по роли (или крови), дознаватель про этот же факт не спорит */
-  var mag=null, magUses="";
-  if(st.xenos){
-    var m=/^([a-z]+)([0-3])$/.exec(st.xenos.id), race=m[1], step=+m[2], xk=step?[race,"*"]:["xeno"];
-    var mk=c?(god||c):null, mks=mk?xk.map(function(k){ return mk+":"+k; }):[]; if(mk&&step&&race!=="orks") mks.push(mk+":other");
-    var strong=god&&(step?(+c[1]+step>=4):+c[1]>=2); /* бог × раса: глубина метки + ступень ≥ 4; бог × Ксенофоб: глубина ≥ 2 */
-    /* приоритет: Верен/Чист/Горкаморка × раса («Чист» — со ступени 2) → роль × раса → кровь × раса → бог × раса → обычная */
-    var sp=(!god&&mk&&!(c==="clean"&&step===1))?pick(N.mark,mks):null, ro=pick(N.role,by(r,xk)), bl=pick(N.blood,by(b,xk));
-    /* общий спор по роли («любая раса», Ксенофоб) уступает дознавателю, если у того есть спор по этой роли */
-    var ck0=c?(god?[god,"*"]:[c]):[];
-    if(ro&&!N.role[r+":"+(step?race:"xeno")]&&pick(N.insp,by(r,ck0))) ro=null;
-    if(bl&&!N.blood[b+":"+(step?race:"xeno")]&&pick(N.insp,by(b,ck0))) bl=null;
-    if(sp) mag=sp; else if(ro){ mag=ro; magUses="role"; } else if(bl){ mag=bl; magUses="blood"; }
-    else mag=(strong&&pick(N.mark,mks))||N.mag[step?st.xenos.id:race+"0"]||"";
-  }
-  if(c){
-    var ck=god?[god,"*"]:[c];
-    var t=(magUses!=="role"&&pick(N.insp,by(r,ck)))||(magUses!=="blood"&&pick(N.insp,by(b,ck)))||N.inq[c]||"";
-    out.push({who:"ПРИПИСКА ДОЗНАВАТЕЛЯ",t:t,k:"inq"});
-  }
-  if(mag) out.push({who:"ПРИПИСКА МАГОСА БИОЛОГИС",t:mag,k:"mag"});
-  return out.filter(function(n){return n.t;});
-}
 /* ---------- Состояние дела ---------- */
 function getState(){
   var b=ls(KROV_KEY), r=ls(IMP_KEY);
@@ -368,23 +338,14 @@ function makeCard(st,imgB,imgR,imgC,imgX){
   x.fillStyle="#a2967f"; x.font="500 28px "+MONO; x.fillText("АДМИНИСТРАТУМ · ОТДЕЛ РАСПРЕДЕЛЕНИЯ",W/2,136);
   x.fillStyle="#ebe1cc"; x.font="800 124px "+SC; fillSC(x,"Личное дело",W/2,270,124);
   x.fillStyle="#cfa752"; x.font="500 30px "+MONO; x.fillText(caseNo(st).toUpperCase(),W/2,334);
-  var NT=st.full?notes(st):[], pw=424,ph=590,gap=40,x0=(W-2*pw-gap)/2,y0=392;
-  /* с приписками плитки крови и роли ниже ровно настолько, чтобы текст (заключение 40px, приписки 36px) дошёл до полосы заполненности */
-  if(NT.length){
-    var txt0=conclusion(st.blood,st.role), MW=W-180, need=0, chx=0;
-    if(st.chaos){ var f0=fitName(x,st.chaos.n,W-200,2); chx=(f0.lines.length-1)*f0.fs*1.08; }
-    x.font="italic 34px "+SERIF; need=(wrapLines(x,txt0,MW).length-1)*46;
-    x.font="italic 30px "+SERIF; NT.forEach(function(n){ need+=51+39+(wrapLines(x,n.t,MW).length-1)*40; });
-    var top=y0+62+152+56+chx+(st.xenos?116:0)+54+122; /* всё, что над текстом, кроме самих плиток */
-    ph=Math.max(300,Math.min(590,Math.floor(1690-need-top)));
-  }
+  var pw=424,ph=590,gap=40,x0=(W-2*pw-gap)/2,y0=392;
   panel(x,x0,y0,pw,ph,st.blood?imgB:null,"КРОВЬ НЕ УСТАНОВЛЕНА");
   panel(x,x0+pw+gap,y0,pw,ph,st.role?imgR:null,"РОЛЬ НЕ УКАЗАНА");
   var cy=y0+ph+62;
   caption(x,x0+pw/2,cy,"КРОВЬ ПРИМАРХА",st.blood?st.blood.n:"",pw,!st.blood);
   caption(x,x0+pw+gap+pw/2,cy,"РОЛЬ",st.role?st.role.n:"",pw,!st.role);
   /* метка Хаоса: подпись из заголовка результата теста 3 */
-  var py=cy+152, last=py+56;
+  var py=1196, last=py+56;
   x.textAlign="center"; x.fillStyle="#a2967f"; x.font="500 26px "+MONO; x.fillText("ПРОТОКОЛ ДОПРОСА",W/2,py);
   if(st.chaos){
     var f=fitName(x,st.chaos.n,W-200,2); x.fillStyle="#ebe1cc";
@@ -407,25 +368,15 @@ function makeCard(st,imgB,imgR,imgC,imgX){
   var txt=st.full?conclusion(st.blood,st.role)
     :(st.blood?"Заключение не составлено: в деле нет роли. Её определяет вторая часть серии."
               :"Заключение не составлено: в деле нет крови. Её определяет первая часть серии.");
-  /* заключение + приписки: подбираем общий размер, чтобы всё влезло до полосы заполненности */
-  var maxW=W-180, LIM=NT.length?1690:1652, ty=dv+(NT.length?122:152), fs, L, lh, nl, nfs, nlh, tot;
-  for(fs=NT.length?34:50;fs>=28;fs-=2){ x.font="italic "+fs+"px "+SERIF; L=wrapLines(x,txt,maxW); lh=Math.round(fs*1.36);
-    nfs=fs-4; nlh=Math.round(nfs*1.34); x.font="italic "+nfs+"px "+SERIF;
-    nl=NT.map(function(n){ return wrapLines(x,n.t,maxW); });
-    tot=(L.length-1)*lh; nl.forEach(function(q){ tot+=Math.round(fs*1.5)+Math.round(nfs*1.3)+(q.length-1)*nlh; }); if(ty+tot<=LIM) break; }
+  var ty=dv+152, fs=52, lines, maxW=W-200, lh;
+  for(;fs>=32;fs-=2){ x.font="italic "+fs+"px "+SERIF; lines=wrapLines(x,txt,maxW); lh=Math.round(fs*1.42); if(ty+(lines.length-1)*lh<=1664) break; }
   x.fillStyle="#ebe1cc"; x.font="italic "+fs+"px "+SERIF;
-  L.forEach(function(l,i){ x.fillText(l,W/2,ty+i*lh); });
-  var ny=ty+(L.length-1)*lh;
-  NT.forEach(function(n,j){
-    ny+=Math.round(fs*1.5); x.fillStyle=n.k==="mag"?"#6f9592":"#9a6a5f"; x.font="500 22px "+MONO; x.fillText(n.who,W/2,ny);
-    ny+=Math.round(nfs*1.3); x.fillStyle=n.k==="mag"?"#9fc3c0":"#d6a99c"; x.font="italic "+nfs+"px "+SERIF;
-    nl[j].forEach(function(l,i){ x.fillText(l,W/2,ny+i*nlh); }); ny+=(nl[j].length-1)*nlh;
-  });
+  lines.forEach(function(l,i){ x.fillText(l,W/2,ty+i*lh); });
   /* низ карточки: заполненность и призыв */
-  var done=(st.blood?1:0)+(st.role?1:0)+(st.chaos?1:0)+(st.xenos?1:0), TOT=XENOS_OPEN||st.xenos?4:3, by=NT.length?1744:1712, bw=TOT===4?92:100, gp=TOT===4?20:24, bx=W/2-(TOT*bw+(TOT-1)*gp)/2;
+  var done=(st.blood?1:0)+(st.role?1:0)+(st.chaos?1:0)+(st.xenos?1:0), TOT=XENOS_OPEN||st.xenos?4:3, by=1712, bw=TOT===4?92:100, gp=TOT===4?20:24, bx=W/2-(TOT*bw+(TOT-1)*gp)/2;
   for(var i=0;i<TOT;i++){ x.fillStyle=i<done?"#cfa752":"#2a231b"; x.fillRect(bx+i*(bw+gp),by,bw,10); }
   x.fillStyle="#a2967f"; x.font="500 26px "+MONO; x.fillText("ДЕЛО ЗАПОЛНЕНО: "+done+" ИЗ "+TOT,W/2,by+54);
-  x.fillStyle="#b8342c"; x.font="500 30px "+MONO; x.fillText(st.complete?"А что в твоём деле?":"Собери дело целиком",W/2,NT.length?H-68:H-92);
+  x.fillStyle="#b8342c"; x.font="500 30px "+MONO; x.fillText(st.complete?"А что в твоём деле?":"Собери дело целиком",W/2,H-92);
   return c;
 }
 function buildCard(st){
@@ -461,10 +412,12 @@ function canShareFiles(){ try{ return !!(window.matchMedia&&matchMedia("(pointer
 /* Тексты пар лежат в отдельном файле; на странице теста про Империум он подключён заранее, на странице примархов подгружается здесь. */
 var pairsP=null;
 function ensurePairs(){
-  if(window.PAIRS_ALL&&window.DELO_NOTES) return Promise.resolve();
+  if(window.PAIRS_ALL) return Promise.resolve();
   if(pairsP) return pairsP;
-  function load(f){ return new Promise(function(res){ var sc=document.createElement("script"); sc.src=BASE+f; sc.onload=sc.onerror=function(){ res(); }; document.head.appendChild(sc); }); }
-  pairsP=Promise.all([load("pairs.js"),window.DELO_NOTES?null:load("notes.js")]);
+  pairsP=new Promise(function(res){
+    var sc=document.createElement("script"); sc.src=BASE+"pairs.js"; sc.onload=sc.onerror=function(){ res(); };
+    document.head.appendChild(sc);
+  });
   return pairsP;
 }
 
@@ -521,5 +474,5 @@ function mount(el,opts){
   }).catch(function(){ if(seq===mountSeq) note.textContent="Не удалось собрать картинку. Обнови страницу."; });
 }
 
-window.DELO={notes:notes,open4:XENOS_OPEN,mount:mount,carry:carry,state:getState,conclusion:conclusion,pairs:PAIRS,bloodLine:BLOOD_LINE,roleLine:ROLE_LINE,build:buildCard};
+window.DELO={open4:XENOS_OPEN,mount:mount,carry:carry,state:getState,conclusion:conclusion,pairs:PAIRS,bloodLine:BLOOD_LINE,roleLine:ROLE_LINE,build:buildCard};
 })();
