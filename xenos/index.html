@@ -546,9 +546,10 @@ async function startQuiz(){
   await sleep(700); if(!alive(my)) return;
   await says(X.CORRIDOR); if(!alive(my)) return;
   var b=await choose(T.BENCH,X.BENCH_Q); S.sel.bench=b.i; S.raw.bench=b.ms;
-  await say(X.DOOR[0][0],X.DOOR[0][1]); if(!alive(my)) return;
+  /* дверь: строка держится дольше и не пропадает, когда появляется кабинет */
+  clearTalk(); await say(X.DOOR[0][0],X.DOOR[0][1],{ms:5200}); if(!alive(my)) return;
   /* кабинет появляется вместе со своим описанием */
-  clearTalk(); setBg(IMG+"cabinet.jpg"); setTop("Ордо Ксенос","Кабинет магоса биологис");
+  setBg(IMG+"cabinet.jpg"); setTop("Ордо Ксенос","Кабинет магоса биологис");
   await say(X.DOOR[1][0],X.DOOR[1][1]); if(!alive(my)) return;
   await say("m",X.entry(blood,role,chaos)); if(!alive(my)) return;
   await say("m",X.TRACES); if(!alive(my)) return;
