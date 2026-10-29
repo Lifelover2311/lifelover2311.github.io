@@ -161,6 +161,11 @@ h2{font-size:clamp(26px,7vw,36px)}
 #hud .boot{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;font-size:13px;letter-spacing:.12em;text-shadow:0 0 8px rgba(127,224,207,.6)}
 #hud .boot div{opacity:0;transition:opacity .4s}#hud .boot div.in{opacity:1}
 
+/* окуляр уезжает вверх */
+#quiz.lift #hud{opacity:1;transition:none;animation:liftUp 1.6s both}
+@keyframes liftUp{0%{transform:none;filter:none}10%{transform:translateY(1.6%)}22%{transform:translateY(1.2%)}
+  100%{transform:translateY(-108%);filter:blur(2px) brightness(.8)}}
+#quiz.lift #hud{animation-timing-function:cubic-bezier(.55,0,.8,.3)}
 /* Смена картинки в окуляре: как старый экран — гаснет в полоску и разворачивается обратно */
 .crt-in{animation:crtIn .75s cubic-bezier(.2,.8,.2,1) both}
 .crt-out{animation:crtOut .45s ease-in both}
@@ -626,8 +631,15 @@ async function deviceOn(my){
   await say(X.DEVICE_ON[1][0],X.DEVICE_ON[1][1]);
 }
 async function deviceOff(my){
-  await frameOut(); clearTalk(); hudOff(); mode(null); setTop("Ордо Ксенос","Кабинет магоса биологис");
-  await sleep(300); await says(X.DEVICE_OFF);
+  await frameOut(); clearTalk(); setTop("Ордо Ксенос","Кабинет магоса биологис");
+  /* окуляр отщёлкивается, чуть проседает и уезжает вверх; под ним кабинет, сначала мутный и тёмный — глаза привыкают */
+  var hud=$("hud");
+  bgA.style.transition="none"; bgA.style.filter="blur(7px) brightness(.35)"; void bgA.offsetWidth;
+  Q.classList.add("lift"); mode(null); Q.classList.add("lift");
+  setTimeout(function(){ bgA.style.transition="filter 2.6s ease"; bgA.style.filter=""; },500);
+  await sleep(reduce?100:1700);
+  hud.style.transition="none"; Q.classList.remove("lift"); hudOff(); void hud.offsetWidth; hud.style.transition="";
+  await says(X.DEVICE_OFF);
 }
 
 /* ---------- Калибровка цветом: три приятных по порядку, один неприятный. Без подписей. ---------- */
