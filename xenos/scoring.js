@@ -230,6 +230,7 @@ const NORM={};
 for(const r of RACE_LIST){const p=RACES[r];const n=Math.hypot(...Object.values(p));NORM[r]={};for(const k in p)NORM[r][k]=p[k]/n;}
 
 // Веса станций
+const INK_OWN="Свобода, Я ×0,5"; // своеволие на пятнах
 const W={bench:1, color:[1,0.75,0.5], colorBad:-0.5, rorschach:1 /*на пятно, делится на число ответов*/, pict:1, dream:1, jung:0.5};
 
 // Лорные семьи рас: брат по семье получает 0,4 от главного веса
@@ -291,7 +292,8 @@ function vectorOf(sel){
   (sel.colors||[]).forEach((c,i)=>add(COLORS[c].ax,W.color[i]));
   if(sel.colorBad!=null) add(COLORS[sel.colorBad].ax,W.colorBad);
   for(const [s,arr] of sel.rorschach||[]) arr.forEach(a=>add(RORSCHACH[s][a].ax,W.rorschach/arr.length));
-  for(const t of sel.inkFree||[]) if(t&&t.ax) add(parseAxes(t.ax),W.rorschach); // свободный ответ «Я вижу другое»
+  // свободный ответ «Я вижу другое»: сам факт своеволия (отказ от предложенных образов) + смысл слова, если прибор его знает
+  for(const t of sel.inkFree||[]){ add(parseAxes(INK_OWN),W.rorschach*0.5); if(t&&t.ax) add(parseAxes(t.ax),W.rorschach); }
   for(const [p,a] of sel.picts||[]) add(PICTS[p][a].ax,W.pict);
   if(sel.dream!=null) add(DREAM[sel.dream].ax,W.dream);
   for(const [w,a] of sel.jung||[]) if(a!=null) add(JUNG[w][1][a].ax,W.jung);
