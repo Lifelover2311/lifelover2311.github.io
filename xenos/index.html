@@ -159,7 +159,10 @@ h2{font-size:clamp(26px,7vw,36px)}
 .frame .miss{width:min(80vw,420px);aspect-ratio:4/3;border:1px dashed rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;color:var(--dust);font-family:var(--f-mono);font-size:12px;text-align:center;padding:10px}
 
 /* Линзы света для калибровки (без подписей) */
+#view{container-type:size}
 .lens{position:absolute;inset:40px 22px;display:grid;grid-template-columns:repeat(4,minmax(0,min(104px,13vh)));gap:clamp(12px,2.4vw,26px);align-content:center;justify-content:center}
+/* линзы укладываются в окуляр по высоте: 3 ряда + отступы под служебные строки сверху и снизу */
+@supports (width:1cqh){ .lens{grid-template-columns:repeat(4,minmax(0,min(104px,calc((100cqh - 80px - 2*clamp(10px,2.4vw,26px))/3),calc((100cqw - 44px - 3*clamp(10px,2.4vw,26px))/4))));gap:clamp(10px,2.4vw,26px)} }
 .sw{position:relative;width:100%;aspect-ratio:1;border-radius:50%;border:0;padding:0;cursor:pointer;
   background:radial-gradient(circle at 36% 30%,rgba(255,255,255,.55),rgba(255,255,255,0) 28%),radial-gradient(circle,var(--c) 0%,var(--c) 52%,rgba(0,0,0,.85) 100%);
   box-shadow:0 0 18px -2px var(--c),inset 0 0 0 2px rgba(0,0,0,.6),inset 0 -8px 18px rgba(0,0,0,.55);transition:transform .2s,box-shadow .2s,opacity .3s}
