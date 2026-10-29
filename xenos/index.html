@@ -447,10 +447,13 @@ function setTop(l,r){ $("tl").textContent=l||""; $("tr").textContent=r||""; }
 function mode(m){ Q.classList.remove("device","full"); if(m) Q.classList.add(m); }
 var skipFn=null;
 talk.addEventListener("click",function(){ if(skipFn) skipFn(); });
+/* тап по картинке тоже листает реплики, если на ней нет кнопок и сканера */
+$("art").addEventListener("click",function(e){ if(!skipFn||Q.classList.contains("full")) return; if(e.target.closest("button,.scan,.lens,#jas")) return; skipFn(); });
 subEl.addEventListener("click",function(){ if(skipFn) skipFn(); });
 var WHO={m:"Магос биологис",i:"Инквизитор"};
 function waitLine(el,text,opt){
-  var my=RUN, ms=opt.ms||Math.max(1700,900+text.length*48);
+  /* время на чтение: длинные фразы держатся заметно дольше (≈18 знаков в секунду), на телефоне ещё на 10% дольше; тап — дальше */
+  var my=RUN, ms=opt.ms||Math.round(Math.max(2000,1000+text.length*56)*(window.innerWidth<700?1.1:1));
   return new Promise(function(res){
     var done=false, more=null;
     function fin(){ if(done) return; done=true; skipFn=null; clearTimeout(t1); clearTimeout(t2); if(more) more.remove(); res(el); }
