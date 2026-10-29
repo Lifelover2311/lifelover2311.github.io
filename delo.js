@@ -373,7 +373,7 @@ function makeCard(st,imgB,imgR,imgC,imgX){
   x.fillStyle="#ebe1cc"; x.font="italic "+fs+"px "+SERIF;
   lines.forEach(function(l,i){ x.fillText(l,W/2,ty+i*lh); });
   /* низ карточки: заполненность и призыв */
-  var done=(st.blood?1:0)+(st.role?1:0)+(st.chaos?1:0)+(st.xenos?1:0), TOT=XENOS_OPEN||st.xenos?5:3, by=1712, bw=TOT===5?84:100, gp=TOT===5?18:24, bx=W/2-(TOT*bw+(TOT-1)*gp)/2;
+  var done=(st.blood?1:0)+(st.role?1:0)+(st.chaos?1:0)+(st.xenos?1:0), TOT=XENOS_OPEN||st.xenos?4:3, by=1712, bw=TOT===4?92:100, gp=TOT===4?20:24, bx=W/2-(TOT*bw+(TOT-1)*gp)/2;
   for(var i=0;i<TOT;i++){ x.fillStyle=i<done?"#cfa752":"#2a231b"; x.fillRect(bx+i*(bw+gp),by,bw,10); }
   x.fillStyle="#a2967f"; x.font="500 26px "+MONO; x.fillText("ДЕЛО ЗАПОЛНЕНО: "+done+" ИЗ "+TOT,W/2,by+54);
   x.fillStyle="#b8342c"; x.font="500 30px "+MONO; x.fillText(st.complete?"А что в твоём деле?":"Собери дело целиком",W/2,H-92);
