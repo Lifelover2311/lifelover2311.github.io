@@ -46,6 +46,17 @@ h1,h2{font-family:var(--f-display);font-weight:800;text-wrap:balance;margin:0;li
 h1{font-size:clamp(36px,9.5vw,54px)}
 h2{font-size:clamp(26px,7vw,36px)}
 .sub{font-family:var(--f-it);font-style:italic;color:var(--gilt);font-size:19px;margin:6px 0 0}
+/* арт на первом экране: коридор, гаснет книзу, текст на тёмном */
+#intro{position:relative;display:flow-root;padding-top:clamp(170px,44vw,300px)}
+#intro > *:not(.iart){position:relative;z-index:1}
+.iart{position:absolute;z-index:0;top:-28px;left:calc(50% - 50vw);width:100vw;height:clamp(330px,84vw,520px);background:url(img/corridor.jpg) center 40%/cover;
+  -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.95) 0%,rgba(0,0,0,.8) 45%,transparent 100%);mask-image:linear-gradient(to bottom,rgba(0,0,0,.95) 0%,rgba(0,0,0,.8) 45%,transparent 100%)}
+.iart::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,11,9,.15) 0%,rgba(13,11,9,.35) 45%,rgba(13,11,9,.92) 80%)}
+#intro .kicker,#intro h1{text-shadow:0 2px 14px #000,0 0 4px #000}
+#intro .kicker{color:var(--bone)}
+.quote{margin:10px 0 0;padding:0 0 0 14px;border-left:2px solid var(--gilt)}
+.quote p{margin:0;font-family:var(--f-it);font-style:italic;color:var(--gilt);font-size:19px;line-height:1.4;text-shadow:0 1px 8px #000}
+.quote cite{display:block;margin-top:4px;font-style:normal;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dust)}
 .scene{margin:22px 0 0;display:grid;gap:12px;max-width:60ch}
 .scene p{margin:0}
 .scene .first{font-size:18px}
@@ -100,6 +111,13 @@ h2{font-size:clamp(26px,7vw,36px)}
 .g5 #gr{opacity:.32;transform:translateX(12px) scale(1.05)}.g5 #gc{opacity:.32;transform:translateX(-12px) scale(1.05)}
 .g6 #bgA,.g6 .sl{filter:saturate(.2) contrast(1.1) blur(4px) brightness(.62) sepia(.3)}
 .g6 #s1{transform:translateX(46px) scale(1.05)}.g6 #s2{transform:translateX(-38px) scale(1.05)}
+/* плывёт: медленное качание, растяжение и мутность, без резких рывков */
+.swim #bgA,.swim #s1,.swim #s2{animation:swim 7s ease-in-out infinite}
+.swim #s2{animation-direction:reverse}
+@keyframes swim{0%,100%{translate:0 0;scale:1;rotate:0deg}25%{translate:-1.4% .7%;scale:1.03;rotate:-.5deg}50%{translate:1.1% -.6%;scale:1.015;rotate:.4deg}75%{translate:-.7% -.9%;scale:1.035;rotate:-.3deg}}
+#swfx{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 1.5s}
+.swim #swfx{opacity:1;animation:swb 7s ease-in-out infinite}
+@keyframes swb{0%,100%{backdrop-filter:blur(.5px) saturate(.9)}50%{backdrop-filter:blur(3.5px) saturate(.6) hue-rotate(-10deg)}}
 .melt #bgA,.melt #bgB{filter:saturate(.35) blur(9px) brightness(.62) sepia(.35);transform:scale(1.1);transition:opacity 2.6s ease,filter 7s ease,transform 16s ease}
 .melt .ly,.melt #dk{opacity:0!important;transition:opacity 1.5s}
 .melt #shade{opacity:.35}
@@ -108,6 +126,7 @@ h2{font-size:clamp(26px,7vw,36px)}
 #sub{position:absolute;left:0;right:0;bottom:0;z-index:4;padding:22px max(18px,env(safe-area-inset-left,0px)) calc(env(safe-area-inset-bottom,0px) + 22px);
   background:linear-gradient(transparent,rgba(0,0,0,.88) 45%);font-size:17px;line-height:1.5;color:#e2dacb;opacity:0;transition:opacity .9s;max-width:900px;margin:0 auto;cursor:pointer}
 #sub.in{opacity:1}
+#quiz.jung #sub{display:none}
 #sub .who{display:block;font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--cold);margin-bottom:2px}
 #sub.i .who{color:#e3a08f}
 
@@ -186,6 +205,13 @@ h2{font-size:clamp(26px,7vw,36px)}
 .ans.on{border-color:var(--cold);background:#1f2d2a}
 .ans.on::after{content:" ✓";color:var(--cold)}
 .ans:disabled{opacity:.4;cursor:default}
+/* номера вариантов для клавиатуры — только там, где есть клавиатура и мышь */
+#keys,#jas,.lens{counter-reset:k}
+@media (hover:hover) and (pointer:fine){
+  #keys .ans:not(.solid)::before,#jas .ans::before{counter-increment:k;content:counter(k);display:inline-block;min-width:1.4em;margin-right:8px;font-family:var(--f-mono);font-size:12px;color:var(--dust);opacity:.75}
+  #jas .ans::before{margin-right:6px}
+}
+.ans.other{font-style:italic;color:var(--dust);border-style:dashed}
 .ans.solid{background:var(--gilt);color:var(--on-gilt);border-color:var(--gilt);font-weight:700;text-align:center}
 .ans.solid:disabled{opacity:.35}
 
@@ -277,13 +303,14 @@ h1,h2,h3{overflow-wrap:break-word;hyphens:auto}
 <body>
 <div class="wrap">
 <section id="intro">
+  <div class="iart" aria-hidden="true"></div>
   <p class="kicker">Серия «Кровь помнит», часть четвёртая</p>
   <h1>Твоя связь с ксеносами</h1>
-  <p class="sub">Открытый разум — крепость с распахнутыми воротами</p>
+  <blockquote class="quote"><p>«Открытый разум — крепость с распахнутыми воротами»</p><cite>Мысль дня. «Лектицио Дивинитатус», стих XXIII</cite></blockquote>
   <div class="scene">
-    <p class="first">Допрос о Хаосе закончился, но сомнения у инквизитора остались. Теперь тебя проверят на связь с ксеносами, и разговором на этот раз не обойдётся.</p>
-    <p class="stage">Время вопросов позади, впереди осмотр. Всё, что ты держал при себе, пока отвечал с ясной головой, магос биологис будет доставать другими способами: через отпечаток пальца, зрачки, чернильные пятна и препарат в вену. Магос — жрец Механикус, он разбирает живое так же, как другие жрецы разбирают машины. Инквизитор будет смотреть из-за стекла.</p>
-    <p>Отвечай на то, что видишь. Скрыть что-то всё равно не выйдет.</p>
+    <p class="first">Допрос о Хаосе закончился, но сомнения у инквизитора остались, и отпускать тебя никто не собирается.</p>
+    <p class="stage">Время вопросов позади, теперь тебя ожидает осмотр. Всё, что ты держал при себе, пока отвечал с ясной головой, магос биологис будет доставать другими способами, и против них ясная голова уже не поможет. Магос — жрец Механикус, он разбирает живое так же, как другие жрецы разбирают машины. Инквизитор будет смотреть из-за стекла.</p>
+    <p>Согласия здесь никто не спрашивает. Тебе просто скажут, куда сесть и куда смотреть.</p>
   </div>
   <div class="case">
     <h3>Личное дело</h3>
@@ -331,7 +358,7 @@ h1,h2,h3{overflow-wrap:break-word;hyphens:auto}
   <div id="art">
     <img class="bg" id="bgA" alt=""><img class="bg" id="bgB" alt="">
     <img class="ly sl" id="s1" alt=""><img class="ly sl" id="s2" alt=""><img class="ly" id="gr" alt=""><img class="ly" id="gc" alt="">
-    <div id="shade"></div><div id="grain"></div><div id="scanl"></div><div id="dk"></div><div id="vig"></div>
+    <div id="swfx"></div><div id="shade"></div><div id="grain"></div><div id="scanl"></div><div id="dk"></div><div id="vig"></div>
     <div id="hud" aria-hidden="true"><i class="c c1"></i><i class="c c2"></i><i class="c c3"></i><i class="c c4"></i>
       <div class="rd"><span id="hl">Окуляр · Механикус</span><span id="hr"></span></div><div class="rd rd2"><span id="hb">Зрачок: —</span><span id="hc">Запись реакций</span></div><div class="boot" id="boot"></div></div>
     <div id="view"></div>
@@ -441,6 +468,20 @@ function addQ(t,hint){ Q.classList.add("ask"); keys.appendChild(mk("p","q",t)); 
   [60,450].forEach(function(d){ setTimeout(function(){ talk.scrollTop=talk.scrollHeight; },d); }); }
 function ansBtn(t,cb,cls){ var b=mk("button","ans"+(cls?" "+cls:""),t); b.type="button"; b.addEventListener("click",cb); keys.appendChild(b); setTimeout(moreCheck,30); return b; }
 /* «ещё варианты» внизу, пока список не докручен до конца */
+/* клавиатура: цифры 1–9 — варианты по порядку на экране, Enter — «Записать» или дальше по репликам */
+document.addEventListener("keydown",function(e){
+  if(Q.hidden||e.ctrlKey||e.metaKey||e.altKey||e.repeat) return;
+  if(e.target&&e.target.closest&&e.target.closest(".scan")) return;
+  var box=$("jas").children.length?$("jas"):keys;
+  var n=/^[1-9]$/.test(e.key)?+e.key:(/^Numpad[1-9]$/.test(e.code)?+e.code.slice(6):0);
+  if(n){ var bs=[].slice.call(box.querySelectorAll(".ans:not(.solid)")).concat([].slice.call(view.querySelectorAll(".sw")));
+    var b=bs[n-1]; if(b&&!b.disabled){ e.preventDefault(); b.click(); b.focus({preventScroll:true}); } return; }
+  if(e.key==="Enter"||e.key===" "){
+    var go=keys.querySelector(".ans.solid:not(:disabled)");
+    if(go){ e.preventDefault(); go.click(); return; }
+    if(!box.querySelector(".ans")&&skipFn){ e.preventDefault(); skipFn(); }
+  }
+});
 function moreCheck(){ var m=$("more"); m.classList.toggle("on",keys.scrollHeight-keys.clientHeight-keys.scrollTop>8); }
 keys.addEventListener("scroll",moreCheck); window.addEventListener("resize",moreCheck);
 function askStart(){ keys.scrollTop=0; talk.scrollTop=talk.scrollHeight; setTimeout(moreCheck,60); }
@@ -570,7 +611,7 @@ function colors(my){
           picks.forEach(function(j){ btns[j].disabled=true; }); clearKeys(); addQ(X.CALIB_Q2); askStart(); } }
       else if(phase===2&&picks.indexOf(i)<0){ phase=3; S.sel.colorBad=i; S.raw.colors=Date.now()-t0; btns[i].classList.add("bad"); btns[i].querySelector("b").textContent="✕"; finish2(); }
     }
-    async function finish2(){ clearKeys(); await sleep(700); await frameOut(); await say("m",X.CALIB_OK); res(); }
+    async function finish2(){ clearKeys(); await sleep(700); await frameOut(); await say("m",X.CALIB_OK); await says(X.CALIB_TALK||[]); res(); }
   });
 }
 
@@ -583,7 +624,8 @@ async function rorschach(my){
     var s=spots[n]; setTop("Окуляр · пятна","Пятно "+(n+1)+" из 4");
     await frameImg(IMG+"ink-"+(s+1)+".jpg","ink"); if(!alive(my)) return;
     var r=await multi(T.RORSCHACH[s]); if(!alive(my)) return;
-    S.sel.rorschach.push([s,r.a]); S.raw.ink.push([s,r.ms]);
+    var real=r.a.filter(function(a){ return a>=0; });
+    S.sel.rorschach.push([s,real]); S.raw.ink.push([s,r.ms,real.length<r.a.length?1:0]);
   }
   await frameOut(); setTop("Окуляр","");
   await says(X.JIBE);
@@ -599,6 +641,11 @@ function multi(list){
         if(on.length===3) setTimeout(function(){ if(on.length===3) finish(); },550); });
       bs.push({b:b,i:i});
     });
+    /* «другое»: образ, которого нет в списке, — в подсчёт не идёт, пишется в сырые данные */
+    var ob=ansBtn(X.INK_OTHER||"Я вижу другое",function(){ if(done) return; var k=on.indexOf(-1); if(k>=0){ on.splice(k,1); ob.classList.remove("on"); } else if(on.length<3){ on.push(-1); ob.classList.add("on"); }
+        bs.forEach(function(x){ x.b.disabled=on.length>=3&&on.indexOf(x.i)<0; }); go.disabled=!on.length; go.textContent=on.length?"Записать ("+on.length+")":"Записать";
+        if(on.length===3) setTimeout(function(){ if(on.length===3) finish(); },550); },"other");
+    bs.push({b:ob,i:-1});
     go=ansBtn("Записать",finish,"solid"); go.disabled=true;
     askStart();
   });
@@ -647,18 +694,24 @@ async function dream(my){
 async function breakdown(my){
   ["s1","s2","gr","gc"].forEach(function(id){ $(id).src=bgA.src; });
   var cls=["g1","g2","g3","g4","g5","g6"];
-  Q.classList.add(cls[0]); await sleep(reduce?300:2200); if(!alive(my)) return;   /* сначала молча портится картинка */
+  /* сначала молча: картинка начинает плыть и заметно ломаться, и только потом магос это замечает */
+  Q.classList.add("swim"); await sleep(reduce?150:1500); if(!alive(my)) return;
+  Q.classList.add("g1"); await sleep(reduce?150:1500); if(!alive(my)) return;
+  Q.classList.add("g2"); await sleep(reduce?150:1500); if(!alive(my)) return;
+  Q.classList.add("g3"); await sleep(reduce?150:1400); if(!alive(my)) return;
+  var step={1:"g4",3:"g5",5:"g6"};
   for(var i=0;i<X.BREAK.length;i++){
-    if(i>0){ Q.classList.add(cls[i]); await sleep(reduce?150:900); if(!alive(my)) return; }
+    if(step[i]){ Q.classList.add(step[i]); await sleep(reduce?150:900); if(!alive(my)) return; }
     await say(X.BREAK[i][0],X.BREAK[i][1]); if(!alive(my)) return; }
   Q.classList.add("melt"); await sleep(900);
-  cls.forEach(function(c){ Q.classList.remove(c); });
+  cls.concat(["swim"]).forEach(function(c){ Q.classList.remove(c); });
   await say("m",X.JUNG_GO); if(!alive(my)) return;
   await sleep(800); clearTalk(); await sleep(900);
 }
 
 /* ---------- Юнг: 6 слов из 12, ответы на картинке, таймер угасанием ---------- */
 async function jung(my){
+  subEl.classList.remove("in"); subEl.innerHTML=""; skipFn=null; Q.classList.add("jung");
   var words=shuffle(range(T.JUNG.length)).slice(0,6);
   for(var n=0;n<words.length;n++){ await jword(words[n],my); if(!alive(my)) return; }
   $("word").style.opacity=0;
@@ -691,7 +744,7 @@ function jword(w,my){
 
 /* ---------- Темнота: только голоса ---------- */
 async function darkness(my){
-  Q.classList.add("black"); Q.style.setProperty("--r","100%"); await sleep(2600); if(!alive(my)) return;
+  Q.classList.remove("jung"); Q.classList.add("black"); Q.style.setProperty("--r","100%"); await sleep(2600); if(!alive(my)) return;
   var v=$("voices"); v.hidden=false; v.innerHTML="";
   for(var i=0;i<X.DARK.length;i++){ var p=mk("p"); p.appendChild(mk("b",null,WHO[X.DARK[i][0]])); p.appendChild(document.createTextNode("«"+X.DARK[i][1]+"»")); v.appendChild(p);
     await sleep(60); p.classList.add("in"); await sleep(i===0?3400:2200); if(!alive(my)) return; }
