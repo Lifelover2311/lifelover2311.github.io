@@ -94,6 +94,10 @@ h2{font-size:clamp(26px,7vw,36px)}
 #shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,0) 40%,rgba(0,0,0,.35));transition:opacity 1.5s,background 1.5s}
 #quiz.dim #shade{background:rgba(0,0,0,.62)}
 #quiz.black .bg,#quiz.device .bg{opacity:0!important;transition:opacity 2s}
+/* после последнего слова Юнга всё плавно уходит в темноту */
+#fade{position:absolute;inset:0;z-index:4;background:#000;opacity:0;pointer-events:none;transition:opacity 3.4s ease-in}
+#quiz.black #fade{opacity:1}
+#quiz.black .bg{transition:opacity 3.4s ease-in!important}
 .ly{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;pointer-events:none;transition:opacity 3s ease,transform 5s ease,filter 3s ease}
 #gr{mix-blend-mode:screen;filter:grayscale(1) contrast(1.3) sepia(1) hue-rotate(-50deg) saturate(5)}
 #gc{mix-blend-mode:screen;filter:grayscale(1) contrast(1.3) sepia(1) hue-rotate(130deg) saturate(5)}
@@ -404,7 +408,7 @@ h1,h2,h3{overflow-wrap:break-word;hyphens:auto}
     <div id="view"></div>
     <div id="word"></div><div id="jas"></div>
     <div id="sub"></div>
-    <div id="voices" hidden></div>
+    <div id="fade"></div><div id="voices" hidden></div>
   </div>
   <div id="panel">
     <div class="top"><span id="tl"></span><span id="tr"></span></div>
@@ -569,7 +573,7 @@ async function bootHud(my){
 async function startQuiz(){
   var my=++RUN;
   S={t0:Date.now(),sel:{rorschach:[],picts:[],jung:[]},raw:{ink:[],pict:[],jung:[],print:{tries:0,hold:0}}};
-  Q.className=""; view.innerHTML=""; clearTalk(); clearKeys(); $("jas").innerHTML=""; $("word").style.opacity=0; $("voices").hidden=true; $("voices").innerHTML=""; $("boot").innerHTML=""; hudOff();
+  var fd=$("fade"); fd.style.transition="none"; Q.className=""; void fd.offsetWidth; fd.style.transition=""; view.innerHTML=""; clearTalk(); clearKeys(); $("jas").innerHTML=""; $("word").style.opacity=0; $("voices").hidden=true; $("voices").innerHTML=""; $("boot").innerHTML=""; hudOff();
   bgA.removeAttribute("src"); bgA.classList.remove("on"); bgB.classList.remove("on"); bgA.style.filter=""; bgA.style.transform=""; bgA.style.transition="";
   show("quiz"); track("start");
   preload([IMG+"corridor.jpg",IMG+"cabinet.jpg"]);
@@ -808,7 +812,7 @@ function jword(w,my){
 
 /* ---------- Темнота: только голоса ---------- */
 async function darkness(my){
-  Q.classList.remove("jung"); Q.classList.add("black"); Q.style.setProperty("--r","100%"); await sleep(2600); if(!alive(my)) return;
+  Q.classList.remove("jung"); Q.classList.add("black"); await sleep(reduce?100:3600); if(!alive(my)) return;
   var v=$("voices"); v.hidden=false; v.innerHTML="";
   for(var i=0;i<X.DARK.length;i++){ var p=mk("p"); p.appendChild(mk("b",null,WHO[X.DARK[i][0]])); p.appendChild(document.createTextNode("«"+X.DARK[i][1]+"»")); v.appendChild(p);
     await sleep(60); p.classList.add("in"); await sleep(i===0?3400:2200); if(!alive(my)) return; }
