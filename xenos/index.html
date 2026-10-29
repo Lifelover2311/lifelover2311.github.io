@@ -323,6 +323,9 @@ h2{font-size:clamp(26px,7vw,36px)}
 .viewnote{border:1px solid var(--gilt);background:var(--vault-2);padding:14px 16px;display:grid;gap:10px;margin-bottom:16px}
 /* фон-арт результата, как в тестах 1–3 */
 #result{position:relative;display:flow-root}
+#result.fresh{animation:resIn 3.6s cubic-bezier(.25,.1,.25,1) both}
+@keyframes resIn{0%{opacity:0;filter:brightness(.35)}35%{opacity:.25;filter:brightness(.5)}100%{opacity:1;filter:none}}
+@media (prefers-reduced-motion:reduce){#result.fresh{animation:none}}
 #result > .kicker{color:var(--bone);text-shadow:0 1px 8px #000,0 0 3px #000}
 #result > *:not(.rart){position:relative;z-index:1}
 .rart{position:absolute;z-index:0;top:-20px;left:calc(50% - 50vw);width:100vw;height:clamp(440px,96vw,640px);background-size:cover;background-position:center;
@@ -910,7 +913,7 @@ function revealAfter(af){
   else go();
 }
 var CUR=null, HKEY="xenos-hist", HMAX=10;
-function showResult(){
+function showResult(fresh){
   var v=CUR.view, mine=v!=="friend";
   render(CUR.c,!!v);
   $("viewNote").hidden=!v;
@@ -922,6 +925,7 @@ function showResult(){
   $("cardOut").hidden=true; $("copied").textContent=""; $("sharebox").hidden=true;
   renderHist(); prepCard();
   if(v==="friend") $("delo").hidden=true; else if(window.DELO) DELO.mount($("delo"));
+  var rs=$("result"); rs.classList.remove("fresh"); if(fresh){ void rs.offsetWidth; rs.classList.add("fresh"); }
   show("result"); Q.className=""; hudOff();
   var top=function(){ window.scrollTo(0,0); try{ document.querySelector(".wrap").scrollIntoView({block:"start"}); }catch(e){} };
   top(); requestAnimationFrame(top); setTimeout(top,120);
@@ -934,7 +938,7 @@ function finish(){
   track("done",{res:id,race:r.code,step:r.step,sub:r.sub,series:r.prior.has?1:0,min:Math.round((Date.now()-S.t0)/60000),
     blood:blood?blood.id:"-",role:role?role.id:"-",chaos:chaos?chaos.id:"-",
     silent:S.sel.jung.filter(function(j){return j[1]==null;}).length,print:S.raw.print.tries});
-  RUN++; clearHash(); CUR={c:c,view:null}; showResult();
+  RUN++; clearHash(); CUR={c:c,view:null}; showResult(true);
 }
 function baseURL(){ return LIVE?location.href.split("#")[0].split("?")[0]:BASE_URL+"xenos/"; }
 function resultLink(){ return baseURL()+"#r="+enc(CUR.c); }
