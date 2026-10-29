@@ -9,7 +9,7 @@
 var BASE=(function(){ var s=document.currentScript; return s&&s.src?s.src.replace(/[^\/]*$/,""):"/"; })();
 var KROV_KEY="krov-primarhov-last", IMP_KEY="imperium-last", CHAOS_KEY="chaos-last", XENOS_KEY="xenos-last";
 /* Тест 4 открыт людям? Пока false — на него ведёт только прямая ссылка, кнопок к нему нет. */
-var XENOS_OPEN=false;
+var XENOS_OPEN=true;
 var LIVE=/github\.io$/.test(location.hostname);
 
 var ROLE_ART={adept:"01-adept",guard:"02-guard",commissar:"03-commissar",techpriest:"04-techpriest",inquisitor:"05-inquisitor",sororitas:"06-sister-battle",preacher:"07-preacher",trader:"08-rogue-trader",navigator:"09-navigator",astropath:"10-astropath",arbitrator:"11-arbitrator",assassin:"12-assassin",governor:"13-governor",hospitaller:"14-hospitaller",underhive:"15-underhive",navy:"16-navy-officer",psyker:"17-psyker",genecult:"18-genecult",ogryn:"19-ogryn",ratling:"20-ratling",silence:"21-sister-silence",knight:"22-knight",agri:"23-agriworld",chronicler:"24-chronicler",custodian:"25-custodian",servitor:"26-servitor",skitarius:"27-skitarius"};
