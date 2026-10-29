@@ -291,6 +291,7 @@ function vectorOf(sel){
   (sel.colors||[]).forEach((c,i)=>add(COLORS[c].ax,W.color[i]));
   if(sel.colorBad!=null) add(COLORS[sel.colorBad].ax,W.colorBad);
   for(const [s,arr] of sel.rorschach||[]) arr.forEach(a=>add(RORSCHACH[s][a].ax,W.rorschach/arr.length));
+  for(const t of sel.inkFree||[]) if(t&&t.ax) add(parseAxes(t.ax),W.rorschach); // свободный ответ «Я вижу другое»
   for(const [p,a] of sel.picts||[]) add(PICTS[p][a].ax,W.pict);
   if(sel.dream!=null) add(DREAM[sel.dream].ax,W.dream);
   for(const [w,a] of sel.jung||[]) if(a!=null) add(JUNG[w][1][a].ax,W.jung);
@@ -316,5 +317,5 @@ function score(sel,prior,k=K){
   const step=X<=th[0]?0:X<=th[1]?1:X<=th[2]?2:3; // 0 = Ксенофоб
   return {race,step,F,T,X,v,prior:pr};
 }
-const T4={RACE_LIST,NORM,W,FAMILY,SPILL,BLOOD,ROLE,MARK,ENEMY,DEPTH,BENCH,COLORS,RORSCHACH,PICTS,DREAM,JUNG,priorProfile,vectorOf,raceScores,score,K};
+const T4={parseAxes,RACE_LIST,NORM,W,FAMILY,SPILL,BLOOD,ROLE,MARK,ENEMY,DEPTH,BENCH,COLORS,RORSCHACH,PICTS,DREAM,JUNG,priorProfile,vectorOf,raceScores,score,K};
 if(typeof module!=='undefined')module.exports=T4; else window.T4SCORE=T4;

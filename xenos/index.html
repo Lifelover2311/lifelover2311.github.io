@@ -178,6 +178,7 @@ h2{font-size:clamp(26px,7vw,36px)}
 .top{flex:none;display:flex;justify-content:space-between;gap:10px;font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);min-height:14px}
 #log{flex:0 1 auto;min-height:0;max-height:48%;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:9px;cursor:pointer;scroll-behavior:smooth}
 #log:empty{display:none}
+#log{scrollbar-width:none}#log::-webkit-scrollbar{display:none}
 #quiz.ask #log{max-height:34%}
 @media not all and (min-width:900px) and (min-aspect-ratio:5/4){ #quiz.ask #log{max-height:20%} #quiz.device{--artH:46%} }
 .ln{font-size:16px;line-height:1.5;opacity:0;transform:translateY(6px);transition:opacity .6s ease,transform .6s ease;flex:none}
@@ -211,6 +212,9 @@ h2{font-size:clamp(26px,7vw,36px)}
   #keys .ans:not(.solid)::before,#jas .ans::before{counter-increment:k;content:counter(k);display:inline-block;min-width:1.4em;margin-right:8px;font-family:var(--f-mono);font-size:12px;color:var(--dust);opacity:.75}
   #jas .ans::before{margin-right:6px}
 }
+.free{display:grid;gap:8px}
+.free input{width:100%;min-height:46px;padding:10px 14px;border-radius:5px;border:1px solid var(--cold);background:#101614;color:var(--bone);font:17px var(--f-body);outline:none}
+.free input:focus{box-shadow:0 0 0 2px rgba(159,195,192,.25)}
 .ans.other{font-style:italic;color:var(--dust);border-style:dashed}
 .ans.solid{background:var(--gilt);color:var(--on-gilt);border-color:var(--gilt);font-weight:700;text-align:center}
 .ans.solid:disabled{opacity:.35}
@@ -253,6 +257,14 @@ h2{font-size:clamp(26px,7vw,36px)}
 .bar i{grid-column:1/-1;height:6px;background:#2a231b;border-radius:3px;overflow:hidden}
 .bar i em{display:block;height:100%;width:0;background:var(--dust);transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
 .bar:first-of-type i em{background:var(--gilt)}
+.loyal{display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 12px;padding:12px 14px;border:1px dashed #5a2a24;background:rgba(60,14,10,.18)}
+.loyal .k{grid-column:1/-1;font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dust)}
+.loyal s,.loyal b{font-family:var(--f-display);font-size:20px;font-weight:800;color:var(--bone)}
+.loyal s{text-decoration:none;position:relative;color:#9b917f}
+.loyal s::after{content:"";position:absolute;left:-4px;right:-4px;top:52%;height:3px;background:var(--seal);transform:rotate(-3deg);border-radius:2px}
+.loyal .st{font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--seal);border:2px solid var(--seal);padding:2px 7px;transform:rotate(-4deg)}
+.loyal.ok{border-color:#4a3f2a;background:rgba(207,167,82,.06)}.loyal.ok .st{color:var(--gilt);border-color:var(--gilt)}
+.loyal p{grid-column:1/-1;margin:2px 0 0;font-family:var(--f-it);font-style:italic;color:var(--dust);font-size:15px}
 .res .rk{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dust);margin-bottom:-6px}
 .res .lead{font-family:var(--f-it);font-style:italic;color:var(--gilt);font-size:18px}
 .res .race{border-top:1px solid var(--rule);padding-top:14px;display:grid;gap:12px}
@@ -306,7 +318,7 @@ h1,h2,h3{overflow-wrap:break-word;hyphens:auto}
   <div class="iart" aria-hidden="true"></div>
   <p class="kicker">Серия «Кровь помнит», часть четвёртая</p>
   <h1>Твоя связь с ксеносами</h1>
-  <blockquote class="quote"><p>«Открытый разум — крепость с распахнутыми воротами»</p><cite>Мысль дня. «Лектицио Дивинитатус», стих XXIII</cite></blockquote>
+  <blockquote class="quote"><p>«Открытый разум — крепость с распахнутыми воротами»</p><cite>Библиарий Кровавых Воронов, Warhammer 40,000: Dawn of War</cite></blockquote>
   <div class="scene">
     <p class="first">Допрос о Хаосе закончился, но сомнения у инквизитора остались, и отпускать тебя никто не собирается.</p>
     <p class="stage">Время вопросов позади, теперь тебя ожидает осмотр. Всё, что ты держал при себе, пока отвечал с ясной головой, магос биологис будет доставать другими способами, и против них ясная голова уже не поможет. Магос — жрец Механикус, он разбирает живое так же, как другие жрецы разбирают машины. Инквизитор будет смотреть из-за стекла.</p>
@@ -471,7 +483,7 @@ function ansBtn(t,cb,cls){ var b=mk("button","ans"+(cls?" "+cls:""),t); b.type="
 /* клавиатура: цифры 1–9 — варианты по порядку на экране, Enter — «Записать» или дальше по репликам */
 document.addEventListener("keydown",function(e){
   if(Q.hidden||e.ctrlKey||e.metaKey||e.altKey||e.repeat) return;
-  if(e.target&&e.target.closest&&e.target.closest(".scan")) return;
+  if(e.target&&e.target.closest&&e.target.closest(".scan,input,textarea")) return;
   var box=$("jas").children.length?$("jas"):keys;
   var n=/^[1-9]$/.test(e.key)?+e.key:(/^Numpad[1-9]$/.test(e.code)?+e.code.slice(6):0);
   if(n){ var bs=[].slice.call(box.querySelectorAll(".ans:not(.solid)")).concat([].slice.call(view.querySelectorAll(".sw")));
@@ -624,8 +636,10 @@ async function rorschach(my){
     var s=spots[n]; setTop("Окуляр · пятна","Пятно "+(n+1)+" из 4");
     await frameImg(IMG+"ink-"+(s+1)+".jpg","ink"); if(!alive(my)) return;
     var r=await multi(T.RORSCHACH[s]); if(!alive(my)) return;
-    var real=r.a.filter(function(a){ return a>=0; });
-    S.sel.rorschach.push([s,real]); S.raw.ink.push([s,r.ms,real.length<r.a.length?1:0]);
+    S.sel.rorschach.push([s,r.a]); S.raw.ink.push([s,r.ms,r.free?1:0]);
+    if(r.free){ var ax=X.inkFree(r.free); (S.sel.inkFree=S.sel.inkFree||[]).push({s:s,t:r.free,ax:ax});
+      track("ink_free",{ink:s+1,t:r.free.slice(0,40),hit:ax?1:0});
+      await say("m",ax?X.INK_FREE_OK:X.INK_FREE_NEW,{ms:1900}); if(!alive(my)) return; }
   }
   await frameOut(); setTop("Окуляр","");
   await says(X.JIBE);
@@ -641,11 +655,13 @@ function multi(list){
         if(on.length===3) setTimeout(function(){ if(on.length===3) finish(); },550); });
       bs.push({b:b,i:i});
     });
-    /* «другое»: образ, которого нет в списке, — в подсчёт не идёт, пишется в сырые данные */
-    var ob=ansBtn(X.INK_OTHER||"Я вижу другое",function(){ if(done) return; var k=on.indexOf(-1); if(k>=0){ on.splice(k,1); ob.classList.remove("on"); } else if(on.length<3){ on.push(-1); ob.classList.add("on"); }
-        bs.forEach(function(x){ x.b.disabled=on.length>=3&&on.indexOf(x.i)<0; }); go.disabled=!on.length; go.textContent=on.length?"Записать ("+on.length+")":"Записать";
-        if(on.length===3) setTimeout(function(){ if(on.length===3) finish(); },550); },"other");
-    bs.push({b:ob,i:-1});
+    /* «Я вижу другое»: остальные варианты убираются, ответ — своими словами (одно-два слова) */
+    ansBtn(X.INK_OTHER||"Я вижу другое",function(){ if(done) return; done=true; clearKeys(); addQ(X.INK_FREE_Q);
+      var f=mk("form","free"), inp=mk("input"); inp.type="text"; inp.maxLength=40; inp.autocomplete="off"; inp.setAttribute("aria-label","Что вы видите");
+      var ok=mk("button","ans solid","Записать"); ok.type="submit"; ok.disabled=true;
+      inp.addEventListener("input",function(){ ok.disabled=inp.value.trim().length<2; });
+      f.addEventListener("submit",function(e){ e.preventDefault(); var t=inp.value.trim(); if(t.length<2) return; clearKeys(); res({a:[],free:t,ms:Date.now()-t0}); });
+      f.appendChild(inp); f.appendChild(ok); keys.appendChild(f); setTimeout(function(){ try{ inp.focus(); }catch(_){} },60); },"other");
     go=ansBtn("Записать",finish,"solid"); go.disabled=true;
     askStart();
   });
@@ -769,8 +785,9 @@ function compute(){
   /* к кому тянет: доля расы среди всех семи (softmax, τ=2 — у лидера обычно около 40%) */
   var mx=Math.max.apply(null,T.RACE_LIST.map(function(k){ return r.F[k]; })), ex={}, sum=0;
   T.RACE_LIST.forEach(function(k){ ex[k]=Math.exp((r.F[k]-mx)/2); sum+=ex[k]; });
-  r.top=T.RACE_LIST.map(function(k){ return [X.RACE_CODE[k],Math.round(100*ex[k]/sum)]; }).sort(function(a,b){ return b[1]-a[1]; }).slice(0,3);
-  r.top[0][0]=r.code;
+  var all=T.RACE_LIST.map(function(k){ return [X.RACE_CODE[k],Math.round(100*ex[k]/sum)]; }).sort(function(a,b){ return b[1]-a[1]; });
+  var mine=all.filter(function(t){ return t[0]===r.code; })[0];
+  r.top=[[r.code,Math.max(mine[1],all[0][1])]].concat(all.filter(function(t){ return t[0]!==r.code; })).slice(0,3);
   return r;
 }
 /* код результата: раса + ступень + подраса, напр. eldar2-3 */
@@ -790,11 +807,15 @@ function render(c,view){
   art.hidden=true; im.onload=function(){ art.style.backgroundImage="url('"+src+"')"; art.hidden=false; }; im.src=src;
   if(xen){ box.appendChild(mk("h2",null,"Ксенофоб")); box.appendChild(mk("p","lead",Z.img));
     box.appendChild(mk("p","ep",Z.ep)); box.appendChild(mk("p","motto","«"+Z.m+"»")); box.appendChild(mk("p",null,Z.d));
-    box.appendChild(mk("p","hate",Z.hate[c.race])); appendBars(box,c.top,true);
+    box.appendChild(mk("p","hate",Z.hate[c.race]));
+    if(!view&&chaos&&chaos.id==="loyal") box.appendChild(loyalNote(true));
+    appendBars(box,c.top,true);
     appendCols(box,Z); box.appendChild(mk("p","think",Z.th));
   } else {
     var St=R.steps[c.step-1];
-    box.appendChild(mk("h2",null,St.h)); box.appendChild(mk("p","lead",St.i)); box.appendChild(mk("p",null,St.p)); appendBars(box,c.top,false);
+    box.appendChild(mk("h2",null,St.h)); box.appendChild(mk("p","lead",St.i)); box.appendChild(mk("p",null,St.p));
+    if(!view&&chaos&&chaos.id==="loyal") box.appendChild(loyalNote(false));
+    appendBars(box,c.top,false);
     var rc=mk("div","race"); rc.appendChild(mk("h3","rn",R.name)); rc.appendChild(mk("p","img",R.img));
     rc.appendChild(mk("p","ep",R.ep)); rc.appendChild(mk("p","motto","«"+R.m+"»")); rc.appendChild(mk("p",null,R.d));
     var sr=R.sub[Math.min(c.sub,R.sub.length-1)]; if(sr){ var sp=mk("p","sr"); sp.appendChild(mk("b",null,sr[0]+". ")); sp.appendChild(document.createTextNode(sr[1])); rc.appendChild(sp); }
@@ -809,10 +830,20 @@ function render(c,view){
     revealAfter(af);
   }
 }
+/* «Верен Императору» из теста 3: при связи с ксеносами отметку вычёркивают, у Ксенофоба — подтверждают */
+function loyalNote(xen){
+  var d=mk("div","loyal"+(xen?" ok":"")); d.appendChild(mk("span","k","Протокол допроса"));
+  d.appendChild(mk(xen?"b":"s",null,"Верен Императору"));
+  d.appendChild(mk("span","st",xen?"Подтверждено":"Вычеркнуто"));
+  d.appendChild(mk("p",null,xen?"Инквизитор оставил эту отметку в деле. Здесь её подтвердил и осмотр."
+    :"Инквизитор вычеркнул эту отметку сам: тот, к кому тянутся ксеносы, в его глазах уже не может считаться верным."));
+  return d;
+}
 function appendBars(box,top,xen){
   if(!top||!top.length) return;
   var w=mk("div","bars"); w.appendChild(mk("h4",null,xen?"Кого не выносишь сильнее всего":"К кому тянет"));
-  top.forEach(function(t){ if(!RES[t[0]]) return; var b=mk("div","bar"); b.appendChild(mk("b",null,RES[t[0]].name)); b.appendChild(mk("span",null,t[1]+"%"));
+  var seen={};
+  top.forEach(function(t){ if(!RES[t[0]]||seen[t[0]]) return; seen[t[0]]=1; var b=mk("div","bar"); b.appendChild(mk("b",null,RES[t[0]].name)); b.appendChild(mk("span",null,t[1]+"%"));
     var i=mk("i"), e=mk("em"); i.appendChild(e); b.appendChild(i); w.appendChild(b); setTimeout(function(){ e.style.width=Math.min(100,t[1])+"%"; },120); });
   box.appendChild(w);
 }
@@ -894,7 +925,9 @@ function makeCard(img){
   x.fillStyle=g; x.fillRect(0,0,W,H);
   x.strokeStyle="#8f6e2c"; x.lineWidth=3; x.strokeRect(40,40,W-80,H-80); x.strokeStyle="#3a3027"; x.lineWidth=2; x.strokeRect(56,56,W-112,H-112);
   x.font='500 28px "IBM Plex Mono", monospace'; var tw=x.measureText("ТВОЯ СВЯЗЬ С КСЕНОСАМИ · ОСМОТР").width;
-  x.fillStyle="rgba(8,7,5,.82)"; x.fillRect(W/2-tw/2-26,82,tw+52,56);
+  (function(){ var rx=tw/2+120, ry=74; x.save(); x.translate(W/2,110); x.scale(rx/100,ry/100);
+    var gg=x.createRadialGradient(0,0,0,0,0,100); gg.addColorStop(0,"rgba(8,7,5,.86)"); gg.addColorStop(.55,"rgba(8,7,5,.7)"); gg.addColorStop(1,"rgba(8,7,5,0)");
+    x.fillStyle=gg; x.fillRect(-100,-100,200,200); x.restore(); })();
   x.textAlign="center"; x.fillStyle="#ebe1cc"; x.fillText("ТВОЯ СВЯЗЬ С КСЕНОСАМИ · ОСМОТР",W/2,120);
   var fs=96; x.font='800 '+fs+'px "Alegreya SC", Georgia, serif';
   var lines=wrapLines(x,h,W-160); while(lines.length>2&&fs>58){ fs-=6; x.font='800 '+fs+'px "Alegreya SC", Georgia, serif'; lines=wrapLines(x,h,W-160); }

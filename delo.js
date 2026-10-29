@@ -350,6 +350,13 @@ function makeCard(st,imgB,imgR,imgC,imgX){
   if(st.chaos){
     var f=fitName(x,st.chaos.n,W-200,2); x.fillStyle="#ebe1cc";
     f.lines.forEach(function(l,i){ fillSC(x,l,W/2,py+56+i*(f.fs*1.08),f.fs); }); last=py+56+(f.lines.length-1)*f.fs*1.08;
+    /* тест 4: связь с ксеносами есть — «Верен Императору» инквизитор вычёркивает */
+    if(st.chaos.id==="loyal"&&st.xenos&&!/0$/.test(st.xenos.id)){
+      x.save(); x.strokeStyle="#b8342c"; x.lineWidth=7; x.lineCap="round";
+      f.lines.forEach(function(l,i){ x.font="800 "+f.fs+"px "+SC; var lw=x.measureText(l).width, ly=py+56+i*(f.fs*1.08)-f.fs*.3;
+        x.beginPath(); x.moveTo(W/2-lw/2-14,ly+5); x.lineTo(W/2+lw/2+14,ly-5); x.stroke(); });
+      x.translate(W/2+330,py+8); x.rotate(-.08); x.font="500 24px "+MONO; x.textAlign="center"; var sw=x.measureText("ВЫЧЕРКНУТО").width+24;
+      x.lineWidth=3; x.strokeRect(-sw/2,-22,sw,38); x.fillStyle="#b8342c"; x.fillText("ВЫЧЕРКНУТО",0,6); x.restore(); x.textAlign="center"; }
   } else { x.fillStyle="#5a4a35"; x.font="800 44px "+SC; fillSC(x,"не приложен",W/2,py+56,44); }
   /* тест 4: заключение магоса одной строкой */
   if(st.xenos){ x.fillStyle="#a2967f"; x.font="500 24px "+MONO; x.fillText("ОСМОТР МАГОСА БИОЛОГИС",W/2,last+66);
