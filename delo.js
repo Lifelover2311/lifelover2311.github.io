@@ -206,7 +206,10 @@ function conclusion(b,r){
 function notes(st){
   var N=window.DELO_NOTES, out=[]; if(!N) return out;
   var b=st.blood&&st.blood.id, r=st.role&&st.role.id, c=st.chaos&&st.chaos.id, god=c&&/^[KTNS]/.test(c)?c[0]:null;
-  function pick(tab,keys){ for(var i=0;i<keys.length;i++){ if(keys[i]&&tab[keys[i]]) return tab[keys[i]]; } return null; }
+  /* у ключа может быть несколько вариантов: выбираем устойчиво по всему делу (у одного человека текст не меняется, у разных — разный) */
+  var seed=[b,r,c,st.xenos&&st.xenos.id].join("|");
+  function V(t,key){ if(!t||typeof t==="string") return t; var s=seed+"#"+key, h=2166136261, j; for(j=0;j<s.length;j++){ h^=s.charCodeAt(j); h=Math.imul(h,16777619)>>>0; } h^=h>>>13; h=Math.imul(h,1274126177)>>>0; h^=h>>>16; return t[h%t.length]; }
+  function pick(tab,keys){ for(var i=0;i<keys.length;i++){ if(keys[i]&&tab[keys[i]]) return V(tab[keys[i]],keys[i]); } return null; }
   function by(id,keys){ return id?keys.map(function(k){ return id+":"+k; }):[]; }
   /* магос считается первым: если он спорит с инспектором по роли (или крови), дознаватель про этот же факт не спорит */
   var mag=null, magUses="";
@@ -221,11 +224,11 @@ function notes(st){
     if(ro&&!N.role[r+":"+(step?race:"xeno")]&&pick(N.insp,by(r,ck0))) ro=null;
     if(bl&&!N.blood[b+":"+(step?race:"xeno")]&&pick(N.insp,by(b,ck0))) bl=null;
     if(sp) mag=sp; else if(ro){ mag=ro; magUses="role"; } else if(bl){ mag=bl; magUses="blood"; }
-    else mag=(strong&&pick(N.mark,mks))||N.mag[step?st.xenos.id:race+"0"]||"";
+    else { var mk0=step?st.xenos.id:race+"0"; mag=(strong&&pick(N.mark,mks))||V(N.mag[mk0],mk0)||""; }
   }
   if(c){
     var ck=god?[god,"*"]:[c];
-    var t=(magUses!=="role"&&pick(N.insp,by(r,ck)))||(magUses!=="blood"&&pick(N.insp,by(b,ck)))||N.inq[c]||"";
+    var t=(magUses!=="role"&&pick(N.insp,by(r,ck)))||(magUses!=="blood"&&pick(N.insp,by(b,ck)))||V(N.inq[c],c)||"";
     out.push({who:"ПРИПИСКА ДОЗНАВАТЕЛЯ",t:t,k:"inq"});
   }
   if(mag) out.push({who:"ПРИПИСКА МАГОСА БИОЛОГИС",t:mag,k:"mag"});
@@ -470,7 +473,7 @@ function ensurePairs(){
   if(window.PAIRS_ALL&&window.DELO_NOTES) return Promise.resolve();
   if(pairsP) return pairsP;
   function load(f){ return new Promise(function(res){ var sc=document.createElement("script"); sc.src=BASE+f; sc.onload=sc.onerror=function(){ res(); }; document.head.appendChild(sc); }); }
-  pairsP=Promise.all([load("pairs.js"),window.DELO_NOTES?null:load("notes.js")]);
+  pairsP=Promise.all([load("pairs.js"),window.DELO_NOTES?null:load("notes5.js")]);
   return pairsP;
 }
 
