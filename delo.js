@@ -208,7 +208,7 @@ function notes(st){
   var b=st.blood&&st.blood.id, r=st.role&&st.role.id, c=st.chaos&&st.chaos.id, god=c&&/^[KTNS]/.test(c)?c[0]:null;
   /* у ключа может быть несколько вариантов: выбираем устойчиво по всему делу (у одного человека текст не меняется, у разных — разный) */
   var seed=[b,r,c,st.xenos&&st.xenos.id].join("|");
-  function V(t,key){ if(!t||typeof t==="string") return t; var s=seed+"#"+key, h=2166136261, j; for(j=0;j<s.length;j++){ h^=s.charCodeAt(j); h=Math.imul(h,16777619)>>>0; } h^=h>>>13; h=Math.imul(h,1274126177)>>>0; h^=h>>>16; return t[h%t.length]; }
+  function V(t,key){ if(!t||typeof t==="string") return t; var s=seed+"#"+key, h=2166136261, j; for(j=0;j<s.length;j++){ h^=s.charCodeAt(j); h=Math.imul(h,16777619)>>>0; } h^=h>>>13; h=Math.imul(h,1274126177)>>>0; h^=h>>>16; return t[(h>>>0)%t.length]; }
   function pick(tab,keys){ for(var i=0;i<keys.length;i++){ if(keys[i]&&tab[keys[i]]) return V(tab[keys[i]],keys[i]); } return null; }
   function by(id,keys){ return id?keys.map(function(k){ return id+":"+k; }):[]; }
   /* магос считается первым: если он спорит с инспектором по роли (или крови), дознаватель про этот же факт не спорит */
