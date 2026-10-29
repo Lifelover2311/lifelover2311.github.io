@@ -259,6 +259,9 @@ h2{font-size:clamp(26px,7vw,36px)}
 #jas:empty{display:none}
 #jas .ans{text-align:center;font-size:18px;padding:15px 10px;background:rgba(10,10,10,.5)}
 @media (max-width:600px){#jas{grid-template-columns:1fr}#word{align-items:flex-start;padding:22vh 0 0}}
+#jas .ans.pick{opacity:1!important;border-color:#bff5ee;background:rgba(31,45,42,.85);color:#fff;box-shadow:0 0 22px rgba(140,255,240,.35);animation:none;transform:scale(1.04);transition:transform .25s,box-shadow .25s}
+#jas .ans.gone{opacity:0!important;transition:opacity .35s}
+#jas .ans:disabled{cursor:default}
 .drift{animation:dr 5s ease-in-out infinite alternate}@keyframes dr{from{transform:translateX(0)}to{transform:translateX(5px)}}
 
 /* Голоса в темноте */
@@ -767,12 +770,12 @@ function bgShift(){
 }
 function jword(w,my){
   return new Promise(async function(res){
-    var word=$("word"), jas=$("jas"), vig=$("vig"), item=T.JUNG[w], TT=reduce?3000:7000;
+    var word=$("word"), jas=$("jas"), vig=$("vig"), item=T.JUNG[w], TT=reduce?3000:10000;
     bgShift(); word.style.transition="opacity 1.2s"; word.textContent=item[0]; word.style.opacity=1; vig.style.opacity=1; var tw=performance.now();
     await sleep(900); if(!alive(my)) return;
     var done=false, t0=performance.now();
     jas.innerHTML=""; jas.style.transition="none"; jas.style.opacity=0;
-    shuffle(range(item[1].length)).forEach(function(i){ var b=mk("button","ans drift",item[1][i].t); b.type="button"; b.addEventListener("click",function(){ fin(i); }); jas.appendChild(b); });
+    shuffle(range(item[1].length)).forEach(function(i){ var b=mk("button","ans drift",item[1][i].t); b.type="button"; b.dataset.i=i; b.addEventListener("click",function(){ fin(i); }); jas.appendChild(b); });
     var iv=setInterval(function(){ var p=Math.min(1,(performance.now()-t0)/TT);
       Q.style.setProperty("--r",(100-45*p)+"%");
       jas.style.opacity=Math.min(1,(performance.now()-t0)/1800)*(1-.8*p*p); jas.style.filter="blur("+(2.5*p*p)+"px)";
@@ -780,9 +783,14 @@ function jword(w,my){
       if(p>=1) fin(null); },50);
     function fin(i){ if(done) return; done=true; clearInterval(iv);
       S.sel.jung.push([w,i]); S.raw.jung.push([w,i,Math.round(performance.now()-t0)]);
-      jas.querySelectorAll("button").forEach(function(x){ x.disabled=true; });
-      jas.style.transition="opacity 1s"; jas.style.opacity=0; word.style.transition="opacity 1.2s"; word.style.opacity=0; vig.style.opacity=0;
-      setTimeout(function(){ jas.innerHTML=""; res(); },1400); }
+      jas.querySelectorAll("button").forEach(function(x,k){ x.disabled=true; });
+      if(i!=null){
+        /* выбор: нажатый вариант вспыхивает и держится, остальные гаснут сразу */
+        jas.style.transition="none"; jas.style.opacity=1; jas.style.filter="none";
+        jas.querySelectorAll("button").forEach(function(x){ if(x.dataset.i==String(i)) x.classList.add("pick"); else x.classList.add("gone"); });
+        setTimeout(function(){ jas.style.transition="opacity .9s"; jas.style.opacity=0; },900);
+      } else { jas.style.transition="opacity 1s"; jas.style.opacity=0; } word.style.transition="opacity 1.2s"; word.style.opacity=0; vig.style.opacity=0;
+      setTimeout(function(){ jas.innerHTML=""; res(); },i!=null?1900:1400); }
   });
 }
 
@@ -869,7 +877,7 @@ function loyalNote(xen){
 }
 function appendBars(box,top,xen){
   if(!top||!top.length) return;
-  var w=mk("div","bars"); w.appendChild(mk("h4",null,xen?"Кого не выносишь сильнее всего":"К кому тянет"));
+  var w=mk("div","bars"); w.appendChild(mk("h4",null,xen?"Кого не выносишь сильнее всего":"К кому тянет больше всего"));
   var seen={};
   top.forEach(function(t){ if(!RES[t[0]]||seen[t[0]]) return; seen[t[0]]=1; var b=mk("div","bar"); b.appendChild(mk("b",null,RES[t[0]].name)); b.appendChild(mk("span",null,t[1]+"%"));
     var i=mk("i"), e=mk("em"); i.appendChild(e); b.appendChild(i); w.appendChild(b); setTimeout(function(){ e.style.width=Math.min(100,t[1])+"%"; },120); });
