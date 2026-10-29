@@ -347,15 +347,21 @@ function drawMark(x,W,H,img,o){
   var L=o.L, sz=Math.round(W*L[0]*(XW[o.fx.f]||1)), t=document.createElement("canvas"); t.width=sz; t.height=sz; var tc=t.getContext("2d");
   tc.drawImage(img,0,0,sz,sz);
   var im=tc.getImageData(0,0,sz,sz), d=im.data, i, r, g, b, lum, mx, mn, sat, a, px, py, X, Y, ef, zy, zx, z, pr, zi, zones=[[95,350],[1005,1850]];
+  /* проход 1: прозрачность и границы рисунка — уголок надо прижать к левому и нижнему краю, как справа сверху */
+  var A=new Float32Array(sz*sz), cs=new Int32Array(sz), rs=new Int32Array(sz);
   for(py=0;py<sz;py++) for(px=0;px<sz;px++){ i=(py*sz+px)*4; r=d[i]; g=d[i+1]; b=d[i+2]; lum=(r+g+b)/3; mx=Math.max(r,g,b); mn=Math.min(r,g,b); sat=(mx-mn)/(mx||1);
-    a=lum>18?Math.max((lum-28)/90,sat*1.5-.25):0; a=a<0?0:a>1?1:a;
+    a=lum>18?Math.max((lum-28)/90,sat*1.5-.25):0; a=a<0?0:a>1?1:a; A[py*sz+px]=a; if(a>.3){ cs[px]++; rs[py]++; } }
+  var minX=0, maxY=sz-1; while(minX<sz-1&&cs[minX]<3) minX++; while(maxY>0&&rs[maxY]<3) maxY--;
+  var BLEED=8, ox=Math.max(0,minX-BLEED), oy=Math.max(0,sz-1-maxY-BLEED);     /* сдвиг влево и вниз, с выходом за край */
+  /* проход 2: мягкие концы, гашение под текстом (координаты уже со сдвигом) */
+  for(py=0;py<sz;py++) for(px=0;px<sz;px++){ i=(py*sz+px)*4; a=A[py*sz+px];
     ef=Math.min(1,py/(sz*.18),(sz-px)/(sz*.18)); a*=ef<0?0:ef;               /* мягкие концы у уголка */
-    X=px; Y=H-sz+py; pr=1;                                                  /* под текстом метка почти гаснет */
+    X=px-ox; Y=H-sz+py+oy; pr=1;                                            /* под текстом метка почти гаснет */
     for(zi=0;zi<zones.length;zi++){ zy=Math.min(Y-zones[zi][0],zones[zi][1]-Y)/40+.5; zx=Math.min(X-70,W-70-X)/40+.5;
       if(zy>0&&zx>0){ z=(zy>1?1:zy)*(zx>1?1:zx); if(1-z*.82<pr) pr=1-z*.82; } }
     d[i+3]=a*pr*L[1]*255; }
   tc.putImageData(im,0,0);
-  x.drawImage(t,0,H-sz);
+  x.drawImage(t,-ox,H-sz+oy);
 }
 function makeCard(st,imgB,imgR,imgC,imgX){
   var W=1080,H=1920,c=document.createElement("canvas"); c.width=W; c.height=H; var x=c.getContext("2d");
