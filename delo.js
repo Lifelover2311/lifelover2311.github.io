@@ -472,8 +472,12 @@ var pairsP=null;
 function ensurePairs(){
   if(window.PAIRS_ALL&&window.DELO_NOTES) return Promise.resolve();
   if(pairsP) return pairsP;
-  function load(f){ return new Promise(function(res){ var sc=document.createElement("script"); sc.src=BASE+f; sc.onload=sc.onerror=function(){ res(); }; document.head.appendChild(sc); }); }
-  pairsP=Promise.all([load("pairs.js"),window.DELO_NOTES?null:load("notes5.js")]);
+  /* до трёх попыток на файл; если тексты так и не пришли — не рисуем урезанную карточку (без пар и приписок), а просим обновить */
+  function load1(f,q){ return new Promise(function(res){ var sc=document.createElement("script"); sc.src=BASE+f+(q?"?r="+q:""); sc.onload=sc.onerror=function(){ res(); }; document.head.appendChild(sc); }); }
+  function load(f,ok,n){ if(ok()) return Promise.resolve(); return load1(f,n?Date.now():0).then(function(){ if(ok()||n>=2) return; return new Promise(function(r){ setTimeout(r,1200*(n+1)); }).then(function(){ return load(f,ok,n+1); }); }); }
+  pairsP=Promise.all([load("pairs.js",function(){ return !!window.PAIRS_ALL; },0),load("notes5.js",function(){ return !!window.DELO_NOTES; },0)]).then(function(){
+    if(!(window.PAIRS_ALL&&window.DELO_NOTES)){ pairsP=null; track("texts_fail"); throw new Error("texts"); }
+  });
   return pairsP;
 }
 
